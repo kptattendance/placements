@@ -112,22 +112,17 @@ export default function AdminLayout({ children }) {
                 href="/admin/placedStudents"
                 className={linkClass("/admin/placedStudents")}
               >
-                Placed Students Page
+                tudents Placed
               </Link>
 
               <Link
                 href="/admin/recentlyVisitedCompanies"
                 className={linkClass("/admin/recentlyVisitedCompanies")}
               >
-                Recently Visited Companies
+                Companies Visited
               </Link>
 
-              <Link
-                href="/admin/addexpenses"
-                className={linkClass("/admin/addexpenses")}
-              >
-                Add Expenses
-              </Link>
+           
 
               <Link
                 href="/admin/announcements"
