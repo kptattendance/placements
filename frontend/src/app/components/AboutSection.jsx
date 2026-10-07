@@ -9,7 +9,7 @@ export default function AboutSection() {
         {/* Left Side — Image */}
         <div className="relative w-full h-80 md:h-[400px] rounded-xl overflow-hidden shadow-lg">
           <Image
-            src="/7.jpg" // 🖼️ replace with your real image
+            src="/1.jpg" // 🖼️ replace with your real image
             alt="KPT Placement Cell"
             fill
             className="object-cover hover:scale-105 transition-transform duration-500"

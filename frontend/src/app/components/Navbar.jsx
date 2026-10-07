@@ -1,260 +1,418 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { UserButton, SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
+import {
+  UserButton,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+} from "@clerk/nextjs";
 
 export default function Navbar() {
   const pathname = usePathname();
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
+
   const openTimeout = useRef(null);
   const closeTimeout = useRef(null);
 
+  /*
+   * Menu structure
+   *
+   * If a menu has "href" → direct link
+   * If a menu has "links" → dropdown
+   */
   const groupedMenus = [
-    {
+  
+  {
       title: "About",
-      links: [
-        { href: "/about", label: "About" },
-        { href: "/ourTeam", label: "Our Team" },
-      ],
+      href: "/about",
     },
     {
-      title: "Students",
-      links: [
-        { href: "/statistics", label: "Statistics" },
-        { href: "/studentsPlaced", label: "Students Placed" },
-        { href: "/downloadsPage", label: "Important Files" },
-      ],
+      title: "Our Team",
+      href: "/ourTeam",
     },
+{
+      title: "Statistics",
+      href: "/statistics",
+    },{
+      title: "Students Placed",
+      href: "/studentsPlaced",
+    },
+ 
+{
+      title: "Companies Visited",
+      href: "/recentlyVisitedCompanies",
+    },
+    {
+      title: "Companies List",
+      href: "/recruiters",
+    },
+
+      {
+      title: "Important Files",
+      href: "/downloadsPage",
+    },
+
+
     {
       title: "Companies",
       links: [
-        { href: "/recruiters", label: "Recruiters" },
-        { href: "/recentlyVisitedCompanies", label: "Recently Visited" },
+     
+    
         { href: "/companySOP", label: "Company SOP" },
-        { href: "/placementProcess", label: "Placement Process" },
-      ],
-    },
-    {
-      title: "Announcements",
-      links: [
-        { href: "/events", label: "Events" },
-        { href: "/announcements", label: "Announcements" },
-      ],
-    },
-    {
-      title: "Info",
-      links: [
         {
-          href: "https://www.kptplacements.org",
-          label: "Internship",
-          external: true,
+          href: "/placementProcess",
+          label: "Placement Process",
         },
-        { href: "/industry-visit", label: "Industry Visit" },
-        { href: "/contact", label: "Contact" },
       ],
     },
   ];
 
+  /* ---------------------------------------
+     Close mobile menu
+  --------------------------------------- */
+  const closeMobileMenu = () => {
+    setMenuOpen(false);
+    setOpenDropdown(null);
+  };
+
+  /* ---------------------------------------
+     Desktop dropdown open
+  --------------------------------------- */
+  const handleMouseEnter = (title) => {
+    clearTimeout(closeTimeout.current);
+
+    openTimeout.current = setTimeout(() => {
+      setOpenDropdown(title);
+    }, 120);
+  };
+
+  /* ---------------------------------------
+     Desktop dropdown close
+  --------------------------------------- */
+  const handleMouseLeave = () => {
+    clearTimeout(openTimeout.current);
+
+    closeTimeout.current = setTimeout(() => {
+      setOpenDropdown(null);
+    }, 220);
+  };
+
+  /* ---------------------------------------
+     Dropdown menu
+  --------------------------------------- */
+  const renderDropdownLinks = (group) => {
+    if (!group.links) return null;
+
+    return (
+      <div
+        className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-gray-100 bg-white py-2 shadow-xl"
+        onMouseEnter={() => clearTimeout(closeTimeout.current)}
+        onMouseLeave={handleMouseLeave}
+      >
+        {group.links.map((link) =>
+          link.external ? (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block px-4 py-2.5 text-sm text-gray-700 transition hover:bg-blue-50 hover:text-blue-700"
+            >
+              {link.label}
+            </a>
+          ) : (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpenDropdown(null)}
+              className={`block px-4 py-2.5 text-sm transition ${
+                pathname === link.href
+                  ? "bg-blue-50 font-semibold text-blue-700"
+                  : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+              }`}
+            >
+              {link.label}
+            </Link>
+          )
+        )}
+      </div>
+    );
+  };
+
   return (
-    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="KPT Logo" className="h-16 w-auto" />
-            <span className="font-bold text-lg text-blue-800">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur-md">
+      <div className="mx-auto max-w-7xl px-3 sm:px-5 lg:px-2">
+        <div className="flex min-h-[72px] items-center justify-between gap-3">
+
+          {/* =========================
+              LOGO
+          ========================== */}
+          <Link
+            href="/"
+            onClick={closeMobileMenu}
+            className="flex min-w-0 items-center gap-2"
+          >
+            <img
+              src="/logo.jpg"
+              alt="KPT Logo"
+              className="h-12 w-auto shrink-0 sm:h-14 lg:h-16"
+            />
+
+            <span className="hidden text-sm font-bold leading-tight text-blue-800 sm:block lg:text-lg">
               KPT Training & Placements
+            </span>
+
+            {/* Short title for very small screens */}
+            <span className="block text-sm font-bold leading-tight text-blue-800 sm:hidden">
+              KPT Placements
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6 text-gray-700 relative">
-            {groupedMenus.map((group) => (
-              <div
-                key={group.title}
-                className="relative"
-                onMouseEnter={() => {
-                  clearTimeout(closeTimeout.current);
-                  openTimeout.current = setTimeout(() => {
-                    setOpenDropdown(group.title);
-                  }, 150); // slight delay before opening
-                }}
-                onMouseLeave={() => {
-                  clearTimeout(openTimeout.current);
-                  closeTimeout.current = setTimeout(() => {
-                    setOpenDropdown(null);
-                  }, 250); // delay before closing
-                }}
-              >
-                <button
-                  onClick={() =>
-                    setOpenDropdown(
-                      openDropdown === group.title ? null : group.title
-                    )
-                  }
-                  className="flex items-center gap-1 font-medium hover:text-blue-700 transition"
-                >
-                  {group.title}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform duration-200 ${
-                      openDropdown === group.title ? "rotate-180" : ""
+          {/* =========================
+              DESKTOP NAVIGATION
+          ========================== */}
+          <div className="hidden items-center gap-1 md:flex lg:gap-3">
+            {groupedMenus.map((group) => {
+              /* Direct link */
+              if (group.href) {
+                return (
+                  <Link
+                    key={group.title}
+                    href={group.href}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition lg:px-4 ${
+                      pathname === group.href
+                        ? "bg-blue-50 font-semibold text-blue-700"
+                        : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
                     }`}
-                  />
-                </button>
-
-                {openDropdown === group.title && (
-                  <div
-                    className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-2 animate-fadeIn"
-                    onMouseEnter={() => clearTimeout(closeTimeout.current)}
-                    onMouseLeave={() => {
-                      closeTimeout.current = setTimeout(() => {
-                        setOpenDropdown(null);
-                      }, 250);
-                    }}
                   >
-                    {group.links.map((link) =>
-                      link.external ? (
-                        <a
-                          key={link.href}
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition"
-                        >
-                          {link.label}
-                        </a>
-                      ) : (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          className={`block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition ${
-                            pathname === link.href
-                              ? "bg-blue-50 text-blue-700 font-semibold"
-                              : ""
-                          }`}
-                        >
-                          {link.label}
-                        </Link>
-                      )
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                    {group.title}
+                  </Link>
+                );
+              }
 
-            {/* Auth */}
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="bg-blue-700 text-white px-4 py-1.5 rounded-lg hover:bg-blue-800 transition">
-                  Sign In
-                </button>
-              </SignInButton>
-            </SignedOut>
-
-            <SignedIn>
-              <Link
-                href="/admin"
-                className={`font-semibold ${
-                  pathname.startsWith("/admin")
-                    ? "text-blue-700 underline"
-                    : "text-blue-700 hover:text-blue-900"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-          </div>
-
-          {/* Mobile Toggle */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="text-gray-700 hover:text-blue-700 focus:outline-none"
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Drawer */}
-      {menuOpen && (
-        <div className="md:hidden bg-white shadow-md border-t border-gray-100 animate-fadeIn">
-          <div className="px-6 py-4 space-y-4">
-            {groupedMenus.map((group) => (
-              <div key={group.title}>
-                <button
-                  onClick={() =>
-                    setOpenDropdown(
-                      openDropdown === group.title ? null : group.title
-                    )
-                  }
-                  className="flex justify-between items-center w-full font-semibold text-gray-700 hover:text-blue-700 transition"
+              /* Dropdown */
+              return (
+                <div
+                  key={group.title}
+                  className="relative"
+                  onMouseEnter={() => handleMouseEnter(group.title)}
+                  onMouseLeave={handleMouseLeave}
                 >
-                  {group.title}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      openDropdown === group.title ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {openDropdown === group.title && (
-                  <div className="pl-4 mt-2 space-y-1">
-                    {group.links.map((link) =>
-                      link.external ? (
-                        <a
-                          key={link.href}
-                          href={link.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block text-gray-700 hover:text-blue-700 transition"
-                        >
-                          {link.label}
-                        </a>
-                      ) : (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setMenuOpen(false)}
-                          className={`block text-gray-700 hover:text-blue-700 transition ${
-                            pathname === link.href
-                              ? "text-blue-700 font-semibold"
-                              : ""
-                          }`}
-                        >
-                          {link.label}
-                        </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenDropdown(
+                        openDropdown === group.title
+                          ? null
+                          : group.title
                       )
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+                    }
+                    className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition lg:px-4 ${
+                      group.links?.some(
+                        (link) => pathname === link.href
+                      )
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+                    }`}
+                  >
+                    {group.title}
 
-            {/* Auth */}
-            <div className="pt-3 border-t border-gray-200">
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        openDropdown === group.title
+                          ? "rotate-180"
+                          : ""
+                      }`}
+                    />
+                  </button>
+
+                  {openDropdown === group.title &&
+                    renderDropdownLinks(group)}
+                </div>
+              );
+            })}
+
+            {/* =========================
+                AUTH DESKTOP
+            ========================== */}
+            <div className="ml-2 flex items-center gap-3 border-l border-gray-200 pl-3">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="w-full bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">
+                  <button className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800">
                     Sign In
                   </button>
                 </SignInButton>
               </SignedOut>
 
               <SignedIn>
-                <div className="flex justify-between items-center mt-2">
+                <Link
+                  href="/admin"
+                  className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                    pathname.startsWith("/admin")
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-blue-700 hover:bg-blue-50"
+                  }`}
+                >
+                  Dashboard
+                </Link>
+
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
+          </div>
+
+          {/* =========================
+              MOBILE MENU BUTTON
+          ========================== */}
+          <button
+            type="button"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            onClick={() => {
+              setMenuOpen((prev) => !prev);
+              setOpenDropdown(null);
+            }}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-700 transition hover:bg-blue-50 hover:text-blue-700 md:hidden"
+          >
+            {menuOpen ? <X size={25} /> : <Menu size={25} />}
+          </button>
+        </div>
+      </div>
+
+      {/* =========================
+          MOBILE DRAWER
+      ========================== */}
+      {menuOpen && (
+        <div className="border-t border-gray-100 bg-white shadow-lg md:hidden">
+          <div className="max-h-[calc(100vh-72px)] overflow-y-auto px-4 py-4">
+
+            <div className="space-y-1">
+
+              {groupedMenus.map((group) => {
+                /* =====================
+                   MOBILE DIRECT LINK
+                ====================== */
+                if (group.href) {
+                  return (
+                    <Link
+                      key={group.title}
+                      href={group.href}
+                      onClick={closeMobileMenu}
+                      className={`flex min-h-[44px] items-center rounded-lg px-3 text-sm font-semibold transition ${
+                        pathname === group.href
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+                      }`}
+                    >
+                      {group.title}
+                    </Link>
+                  );
+                }
+
+                /* =====================
+                   MOBILE DROPDOWN
+                ====================== */
+                return (
+                  <div
+                    key={group.title}
+                    className="rounded-lg"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenDropdown(
+                          openDropdown === group.title
+                            ? null
+                            : group.title
+                        )
+                      }
+                      className={`flex min-h-[44px] w-full items-center justify-between rounded-lg px-3 text-sm font-semibold transition ${
+                        group.links?.some(
+                          (link) => pathname === link.href
+                        )
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+                      }`}
+                    >
+                      <span>{group.title}</span>
+
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform duration-200 ${
+                          openDropdown === group.title
+                            ? "rotate-180"
+                            : ""
+                        }`}
+                      />
+                    </button>
+
+                    {openDropdown === group.title && (
+                      <div className="ml-3 mt-1 border-l-2 border-blue-100 pl-3">
+                        {group.links.map((link) =>
+                          link.external ? (
+                            <a
+                              key={link.href}
+                              href={link.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={closeMobileMenu}
+                              className="flex min-h-[42px] items-center px-3 text-sm text-gray-600 transition hover:text-blue-700"
+                            >
+                              {link.label}
+                            </a>
+                          ) : (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              onClick={closeMobileMenu}
+                              className={`flex min-h-[42px] items-center rounded-md px-3 text-sm transition ${
+                                pathname === link.href
+                                  ? "font-semibold text-blue-700"
+                                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-700"
+                              }`}
+                            >
+                              {link.label}
+                            </Link>
+                          )
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* =========================
+                MOBILE AUTH
+            ========================== */}
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="w-full rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800"
+                  >
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+
+              <SignedIn>
+                <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-3">
                   <Link
                     href="/admin"
-                    onClick={() => setMenuOpen(false)}
-                    className="font-semibold text-blue-700 hover:text-blue-900"
+                    onClick={closeMobileMenu}
+                    className="text-sm font-semibold text-blue-700"
                   >
                     Dashboard
                   </Link>
+
                   <UserButton afterSignOutUrl="/" />
                 </div>
               </SignedIn>

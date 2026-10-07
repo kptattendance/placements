@@ -1,6 +1,9 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// ✅ Define public (unprotected) routes
+// ==========================================
+// PUBLIC ROUTES
+// ==========================================
+// These pages can be accessed without login.
 const isPublicRoute = createRouteMatcher([
   "/",
   "/about",
@@ -10,20 +13,32 @@ const isPublicRoute = createRouteMatcher([
   "/announcements",
   "/ourTeam",
   "/events",
-  "/api/(.*)", // allow API requests
+  "/downloadsPage",
+
+  // Public API routes
+  "/api/(.*)",
 ]);
 
 export default clerkMiddleware((auth, req) => {
-  // Public pages don't need authentication
-  if (isPublicRoute(req)) return;
+  // ==========================================
+  // ALLOW PUBLIC ROUTES
+  // ==========================================
+  if (isPublicRoute(req)) {
+    return;
+  }
 
-  // Protect all other routes (like /admin/**)
+  // ==========================================
+  // PROTECT ALL OTHER ROUTES
+  // ==========================================
   auth.protect();
 });
 
 export const config = {
   matcher: [
-    // Apply Clerk middleware to all routes except static files and Next internals
+    /*
+     * Run middleware on application routes,
+     * excluding Next.js internals and static files.
+     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
   ],
 };

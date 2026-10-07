@@ -11,53 +11,83 @@ import {
 
 export default function Topbar() {
   return (
-    <div className="w-full bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white shadow-md backdrop-blur-sm px-3 md:px-8 py-2 text-sm flex flex-col md:flex-row items-center justify-between z-[9999]">
-      {/* Left Section */}
-      <div className="flex items-center gap-6 mb-2 md:mb-0 text-gray-100">
-        <div className="flex items-center gap-2">
-          <Phone size={16} className="text-yellow-300" />
-          <span className="hover:text-white transition-colors">
-            (0824) - 3516910 / +91 77604 21790
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Mail size={16} className="text-yellow-300" />
-          <span className="hover:text-white transition-colors">
-            kptplacements@gmail.com
-          </span>
-        </div>
-      </div>
+    <div className="w-full bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 text-white shadow-md">
 
-      {/* Right Section */}
-      <div className="flex items-center gap-4">
-        <a
-          className="hover:text-yellow-300 transition-colors duration-300"
-          href="#"
-          aria-label="Facebook"
-        >
-          <Facebook size={18} />
-        </a>
-        <a
-          className="hover:text-yellow-300 transition-colors duration-300"
-          href="#"
-          aria-label="Twitter"
-        >
-          <Twitter size={18} />
-        </a>
-        <a
-          className="hover:text-pink-300 transition-colors duration-300"
-          href="#"
-          aria-label="Instagram"
-        >
-          <Instagram size={18} />
-        </a>
-        <a
-          className="hover:text-blue-300 transition-colors duration-300"
-          href="#"
-          aria-label="LinkedIn"
-        >
-          <Linkedin size={18} />
-        </a>
+      <div className="mx-auto flex w-full max-w-7xl flex-col px-3 py-2 sm:px-5 md:flex-row md:items-center md:justify-between md:px-8">
+
+        {/* =========================
+            LEFT - CONTACT DETAILS
+        ========================== */}
+        <div className="flex min-w-0 flex-col items-center gap-1.5 text-xs text-gray-100 sm:text-sm md:flex-row md:gap-6">
+
+          {/* Phone */}
+          <a
+            href="tel:+9182403516910"
+            className="flex max-w-full items-center gap-2 transition-colors hover:text-white"
+          >
+            <Phone
+              size={15}
+              className="shrink-0 text-yellow-300 sm:h-4 sm:w-4"
+            />
+
+            <span className="truncate">
+              (0824) - 3516910 / +91 77604 21790
+            </span>
+          </a>
+
+          {/* Email */}
+          <a
+            href="mailto:kptplacements@gmail.com"
+            className="flex max-w-full items-center gap-2 transition-colors hover:text-white"
+          >
+            <Mail
+              size={15}
+              className="shrink-0 text-yellow-300 sm:h-4 sm:w-4"
+            />
+
+            <span className="truncate">
+              kptplacements@gmail.com
+            </span>
+          </a>
+        </div>
+
+        {/* =========================
+            RIGHT - SOCIAL ICONS
+        ========================== */}
+        <div className="mt-2 flex items-center justify-center gap-5 md:mt-0 md:gap-4">
+
+          <a
+            href="#"
+            aria-label="Facebook"
+            className="transition-all duration-300 hover:scale-110 hover:text-yellow-300"
+          >
+            <Facebook size={17} />
+          </a>
+
+          <a
+            href="#"
+            aria-label="Twitter"
+            className="transition-all duration-300 hover:scale-110 hover:text-yellow-300"
+          >
+            <Twitter size={17} />
+          </a>
+
+          <a
+            href="#"
+            aria-label="Instagram"
+            className="transition-all duration-300 hover:scale-110 hover:text-pink-300"
+          >
+            <Instagram size={17} />
+          </a>
+
+          <a
+            href="#"
+            aria-label="LinkedIn"
+            className="transition-all duration-300 hover:scale-110 hover:text-blue-300"
+          >
+            <Linkedin size={17} />
+          </a>
+        </div>
       </div>
     </div>
   );
