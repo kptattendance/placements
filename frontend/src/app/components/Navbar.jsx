@@ -54,17 +54,10 @@ export default function Navbar() {
       href: "/recruiters",
     },
 
-      {
-      title: "Important Files",
-      href: "/downloadsPage",
-    },
-
-
     {
-      title: "Companies",
+      title: "Important Files",
       links: [
-     
-    
+        { href: "/downloadsPage", label: "Downloads" },
         { href: "/companySOP", label: "Company SOP" },
         {
           href: "/placementProcess",
