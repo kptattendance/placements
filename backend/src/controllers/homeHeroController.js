@@ -8,15 +8,15 @@ export const uploadHeroImage = async (req, res) => {
       return res.status(400).json({ message: "Image required" });
     }
 
-    // Count current images to assign correct order
-    const count = await HomeHero.countDocuments();
+    // Place the new image after the current last one
+    const last = await HomeHero.findOne().sort({ order: -1 });
 
     const img = await HomeHero.create({
       image: {
         url: req.file.path,
         public_id: req.file.filename,
       },
-      order: count, // NEW FIX ✔️
+      order: last ? last.order + 1 : 0, // always after the last image
     });
 
     res.status(201).json(img);
@@ -45,12 +45,17 @@ export const deleteHeroImage = async (req, res) => {
     }
 
     if (image.image?.public_id) {
-      await cloudinary.uploader.destroy(image.image.public_id);
+      try {
+        await cloudinary.uploader.destroy(image.image.public_id);
+      } catch (err) {
+        console.log("Cloudinary delete failed:", err);
+      }
     }
 
     await image.deleteOne();
     res.status(200).json({ message: "Hero image deleted successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: "Failed to delete hero image" });
   }
 };

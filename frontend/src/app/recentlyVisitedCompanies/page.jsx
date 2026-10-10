@@ -127,7 +127,7 @@ export default function RecentlyVisitedCompanies() {
                 <img
                   src={
                     c.image?.url ||
-                    "https://via.placeholder.com/400x250.png?text=No+Image"
+                    "/visited-company-placeholder.png"
                   }
                   alt={c.companyName}
                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"

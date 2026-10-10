@@ -3,6 +3,10 @@
 import { useUser, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../../lib/adminAuth";
+import { ADMIN_LINKS } from "./links";
 
 const ALLOWED_ROLES = [
   "principal",
@@ -57,21 +61,26 @@ export default function AdminLayout({ children }) {
     );
   }
 
+  const links = ADMIN_LINKS[role] || [];
+
   const linkClass = (path) =>
     pathname === path
       ? "rounded-lg bg-blue-50 px-3 py-2 font-semibold text-blue-700"
       : "rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-600";
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* SIDEBAR */}
-      <aside className="w-64 shrink-0 border-r border-gray-200 bg-white p-6 shadow-sm">
+    <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
+      {/* One toast container for every admin page */}
+      <ToastContainer position="top-right" autoClose={2500} />
+
+      {/* SIDEBAR (becomes a top strip on phones) */}
+      <aside className="shrink-0 border-b border-gray-200 bg-white p-4 shadow-sm md:w-64 md:border-b-0 md:border-r md:p-6">
         <h2 className="mb-2 text-lg font-bold text-blue-700">
           Admin Panel
         </h2>
 
         {/* USER INFORMATION */}
-        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-3">
+        <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 md:mb-6">
           <p className="text-sm text-gray-700">
             Logged in as:
           </p>
@@ -89,128 +98,21 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* NAVIGATION */}
-        <nav className="flex flex-col gap-1">
-
-          {/* PLACEMENT COORDINATOR */}
-          {role === "placement-coordinator" && (
-            <>
-              <Link
-                href="/admin"
-                className={linkClass("/admin")}
-              >
-                Dashboard
-              </Link>
-
-              <Link
-                href="/admin/statistics"
-                className={linkClass("/admin/statistics")}
-              >
-                Placement Statistics
-              </Link>
-
-              <Link
-                href="/admin/placedStudents"
-                className={linkClass("/admin/placedStudents")}
-              >
-                tudents Placed
-              </Link>
-
-              <Link
-                href="/admin/recentlyVisitedCompanies"
-                className={linkClass("/admin/recentlyVisitedCompanies")}
-              >
-                Companies Visited
-              </Link>
-
-           
-
-              <Link
-                href="/admin/announcements"
-                className={linkClass("/admin/announcements")}
-              >
-                Announcements
-              </Link>
-
-              <Link
-                href="/admin/events"
-                className={linkClass("/admin/events")}
-              >
-                Events
-              </Link>
-
-              <Link
-                href="/admin/team"
-                className={linkClass("/admin/team")}
-              >
-                Our Team
-              </Link>
-
-              <Link
-                href="/admin/gallery"
-                className={linkClass("/admin/gallery")}
-              >
-                Gallery Photos
-              </Link>
-
-              <Link
-                href="/admin/recruiterLogos"
-                className={linkClass("/admin/recruiterLogos")}
-              >
-                Recruiter Logos
-              </Link>
-
-              <Link
-                href="/admin/homeHero"
-                className={linkClass("/admin/homeHero")}
-              >
-                Homepage Images
-              </Link>
-            </>
-          )}
-
-          {/* PLACEMENT OFFICER */}
-          {role === "placement-officer" && (
+        <nav className="flex gap-1 overflow-x-auto whitespace-nowrap md:flex-col md:overflow-visible md:whitespace-normal">
+          {links.map((link) => (
             <Link
-              href="/admin/placementExpenses"
-              className={linkClass("/admin/placementExpenses")}
+              key={link.href}
+              href={link.href}
+              className={linkClass(link.href)}
             >
-              Review Expenses
+              {link.label}
             </Link>
-          )}
-
-          {/* PRINCIPAL */}
-          {role === "principal" && (
-            <>
-              <Link
-                href="/admin/principalReviewExpenses"
-                className={linkClass("/admin/principalReviewExpenses")}
-              >
-                Approve Expenses
-              </Link>
-
-              <Link
-                href="/admin/principalBudget"
-                className={linkClass("/admin/principalBudget")}
-              >
-                Manage Budget
-              </Link>
-            </>
-          )}
-
-          {/* SW OFFICER */}
-          {role === "sw-officer" && (
-            <Link
-              href="/admin/swOfficerExpenses"
-              className={linkClass("/admin/swOfficerExpenses")}
-            >
-              SW Officer – Review Expenses
-            </Link>
-          )}
+          ))}
         </nav>
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="min-w-0 flex-1 p-8">
+      <main className="min-w-0 flex-1 p-4 md:p-8">
         {children}
       </main>
     </div>

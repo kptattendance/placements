@@ -11,7 +11,6 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
-import AnnouncementsCarousel from "./components/AnnouncementsCarousel";
 import TopRecruiters from "./components/TopRecruiters";
 import RecruiterCTA from "./components/RecruiterCTA";
 import AboutSection from "./components/AboutSection";
@@ -203,17 +202,17 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-4">
 
             <Link
-              href="/announcements"
+              href="/statistics"
               className="bg-white text-blue-800 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition"
             >
-              View Announcements
+              View Placement Statistics
             </Link>
 
             <Link
-              href="/ourTeam"
+              href="/studentsPlaced"
               className="border border-white px-6 py-2 rounded-lg hover:bg-white hover:text-blue-800 transition"
             >
-              Meet Our Team
+              Students Placed
             </Link>
 
           </div>
@@ -225,8 +224,6 @@ export default function Home() {
       ===================================================== */}
 
       <AboutSection />
-
-      {/* <AnnouncementsCarousel /> */}
 
       <TopRecruiters />
 

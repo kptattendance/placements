@@ -88,6 +88,11 @@ export default function PlacedStudents() {
     setFiltered(filteredData);
   }, [filters, students]);
 
+  // ✅ Years that actually have placed students, latest first
+  const years = [...new Set(students.map((s) => s.yearOfPassing))]
+    .filter(Boolean)
+    .sort((a, b) => b - a);
+
   // ✅ Handle Filter Change
   const handleChange = (field, value) => {
     setFilters((prev) => ({
@@ -119,7 +124,7 @@ export default function PlacedStudents() {
         >
           <option value="">All Years</option>
 
-          {[2024, 2025, 2026, 2027, 2028].map((year) => (
+          {years.map((year) => (
             <option key={year} value={year}>
               {year}
             </option>
@@ -197,7 +202,7 @@ export default function PlacedStudents() {
                 <div className="relative z-10 flex flex-col items-center text-center p-4">
                   {/* Heading */}
                   <div className="mb-3">
-                    <h3 className="text-pink-700 text-1xl font-semibold italic">
+                    <h3 className="text-pink-700 text-base font-semibold italic">
                       🎉 Hearty Congratulations! 🎉
                     </h3>
 
@@ -212,7 +217,7 @@ export default function PlacedStudents() {
                       <img
                         src={
                           s.image?.url ||
-                          "https://via.placeholder.com/150x150.png?text=No+Photo"
+                          "/logo.jpg"
                         }
                         alt={s.name}
                         className="w-full h-full object-cover rounded-full"
@@ -233,13 +238,13 @@ export default function PlacedStudents() {
                   {/* Register Number */}
                   <p className="text-sm text-gray-600 mt-2">
                     Reg No:
-                    <span className="font-semibold text-gray-800 font-bold ml-1 ">
+                    <span className="font-bold text-gray-800 ml-1">
                       {s.registerNumber?.toUpperCase()}
                     </span>
                   </p>
 
                   {/* Branch */}
-                  <p className="mt-9text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-gray-600">
                     <span className="font-semibold">Branch:</span>{" "}
                     <span className="text-blue-500 font-bold">
                       {branchNames[s.branch?.toUpperCase()] || s.branch}
@@ -247,7 +252,7 @@ export default function PlacedStudents() {
                   </p>
 
                   {/* Company */}
-                  <div className="mt-3 bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-1 shadow-md w-FULL">
+                  <div className="mt-3 bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-1 shadow-md w-full">
                     {" "}
                     <div className="text-base font-bold text-[#3b1fa1]">
                       {toTitleCase(s.companyName)}

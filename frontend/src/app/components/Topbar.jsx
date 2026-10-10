@@ -22,7 +22,7 @@ export default function Topbar() {
 
           {/* Phone */}
           <a
-            href="tel:+9182403516910"
+            href="tel:+918243516910"
             className="flex max-w-full items-center gap-2 transition-colors hover:text-white"
           >
             <Phone

@@ -1,36 +1,19 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // ==========================================
-// PUBLIC ROUTES
+// PROTECTED ROUTES
 // ==========================================
-// These pages can be accessed without login.
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/about",
-  "/contact",
-  "/recruiters",
-  "/statistics",
-  "/announcements",
-  "/ourTeam",
-  "/events",
-  "/downloadsPage",
-
-  // Public API routes
-  "/api/(.*)",
+// Only the admin area needs login. Every other page is public, so a new
+// public page can never be locked behind sign-in by mistake.
+const isProtectedRoute = createRouteMatcher([
+  "/admin(.*)",
+  "/dashboard(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
-  // ==========================================
-  // ALLOW PUBLIC ROUTES
-  // ==========================================
-  if (isPublicRoute(req)) {
-    return;
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    await auth.protect();
   }
-
-  // ==========================================
-  // PROTECT ALL OTHER ROUTES
-  // ==========================================
-  auth.protect();
 });
 
 export const config = {

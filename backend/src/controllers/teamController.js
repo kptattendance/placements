@@ -9,14 +9,11 @@ export const createMember = async (req, res) => {
 
     let uploadedImage = null;
 
+    // multer has already uploaded the file to Cloudinary
     if (file) {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: "team_members",
-      });
-
       uploadedImage = {
-        public_id: result.public_id,
-        url: result.secure_url,
+        public_id: file.filename,
+        url: file.path,
       };
     }
 
@@ -75,15 +72,11 @@ export const updateMember = async (req, res) => {
 
     // IMAGE UPDATE
     if (file) {
-      const result = await cloudinary.uploader.upload(file.path, {
-        folder: "team_members",
-      });
-
       const oldId = member.image?.public_id;
 
       member.image = {
-        public_id: result.public_id,
-        url: result.secure_url,
+        public_id: file.filename,
+        url: file.path,
       };
 
       if (oldId) {

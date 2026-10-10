@@ -2,10 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { FaTrash } from "react-icons/fa";
-import Image from "next/image";
 import {
   DndContext,
   closestCenter,
@@ -40,7 +38,9 @@ export default function TeamAdminPage() {
   const fileInputRef = useRef(null);
   const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   // Fetch team
   const fetchMembers = async () => {
@@ -54,7 +54,7 @@ export default function TeamAdminPage() {
 
   useEffect(() => {
     fetchMembers();
-  }, [fetchMembers]);
+  }, []);
 
   // Handle input
   const handleChange = (e) => {
@@ -174,8 +174,6 @@ export default function TeamAdminPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 text-gray-700">
-      <ToastContainer position="top-right" autoClose={2000} />
-
       <h1 className="text-2xl font-bold mb-6">
         {editingId ? "Edit Team Member" : "Add Team Member"}
       </h1>
@@ -318,10 +316,10 @@ function SortableTeamCard({ member, onEdit, onDelete }) {
     >
       {/* LEFT SECTION */}
       <div className="flex items-center gap-4">
-        <Image
+        <img
           src={member.image?.url || "/placeholder.jpg"}
           alt={member.name}
-          className="w-14 h-14 rounded-full border"
+          className="w-14 h-14 rounded-full border object-cover"
         />
 
         <div>

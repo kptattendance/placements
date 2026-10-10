@@ -1,28 +1,38 @@
 import Placement from "../models/placementModel.js";
 
+// Placement % = students placed / total student strength
+const percent = (part, whole) =>
+  whole > 0 ? Number(((part / whole) * 100).toFixed(2)) : 0;
+
 // Utility: recompute totals for a placement document
+// Every "Total" and "%" is derived from the male/female counts,
+// so the stored numbers can never disagree with each other.
 const recalcTotals = (placement) => {
   let totalStudents = 0;
   let totalPassed = 0;
   let totalPlaced = 0;
   let totalHigher = 0;
+  let totalDropouts = 0;
   let totalEntrepreneurs = 0;
 
   placement.programs.forEach((p) => {
+    // Keep a manually entered total only when no male/female split was given
+    if (p.male + p.female > 0) p.total = p.male + p.female;
+
     p.passedTotal = p.passedMale + p.passedFemale;
     p.placedTotal = p.placedMale + p.placedFemale;
     p.higherTotal = p.higherMale + p.higherFemale;
     p.dropoutTotal = p.dropoutMale + p.dropoutFemale;
 
-    p.percentageTotal =
-      p.total > 0
-        ? Number(((p.placedTotal / p.total) * 100).toFixed(2))
-        : 0;
+    p.percentageMale = percent(p.placedMale, p.male);
+    p.percentageFemale = percent(p.placedFemale, p.female);
+    p.percentageTotal = percent(p.placedTotal, p.total);
 
     totalStudents += p.total;
     totalPassed += p.passedTotal;
     totalPlaced += p.placedTotal;
     totalHigher += p.higherTotal;
+    totalDropouts += p.dropoutTotal;
     totalEntrepreneurs += p.entrepreneurMale + p.entrepreneurFemale;
   });
 
@@ -30,12 +40,9 @@ const recalcTotals = (placement) => {
   placement.totalPassed = totalPassed;
   placement.totalPlaced = totalPlaced;
   placement.totalHigherStudies = totalHigher;
+  placement.totalDropouts = totalDropouts;
   placement.totalEntrepreneurs = totalEntrepreneurs;
-
-  placement.overallPercentage =
-    totalStudents > 0
-      ? Number(((totalPlaced / totalStudents) * 100).toFixed(2))
-      : 0;
+  placement.overallPercentage = percent(totalPlaced, totalStudents);
 
   return placement;
 };

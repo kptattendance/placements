@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaGripVertical } from "react-icons/fa";
 
 import {
   DndContext,
@@ -14,7 +14,7 @@ import {
 import {
   SortableContext,
   useSortable,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
@@ -23,10 +23,15 @@ export default function AdminHomeHeroPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  // A drag starts only after moving 8px, so a plain click is never
+  // mistaken for a drag
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   // Fetch images
   const fetchImages = async () => {
@@ -59,6 +64,7 @@ export default function AdminHomeHeroPage() {
       toast.success("Image uploaded");
       setFile(null);
       setPreview(null);
+      e.target.reset();
       fetchImages();
     } catch {
       toast.error("Upload failed");
@@ -72,11 +78,14 @@ export default function AdminHomeHeroPage() {
     if (!confirm("Delete this image?")) return;
 
     try {
+      setDeletingId(id);
       await axios.delete(`${baseURL}/api/home-hero/${id}`);
       toast.info("Deleted");
-      setImages(images.filter((x) => x._id !== id));
-    } catch {
-      toast.error("Failed to delete");
+      setImages((prev) => prev.filter((x) => x._id !== id));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -124,8 +133,9 @@ export default function AdminHomeHeroPage() {
             type="file"
             accept="image/*"
             onChange={(e) => {
-              setFile(e.target.files[0]);
-              setPreview(URL.createObjectURL(e.target.files[0]));
+              const selected = e.target.files[0] || null;
+              setFile(selected);
+              setPreview(selected ? URL.createObjectURL(selected) : null);
             }}
             className="border rounded-lg px-3 py-2 w-full"
           />
@@ -153,6 +163,12 @@ export default function AdminHomeHeroPage() {
         )}
 
         {/* Images List */}
+        {images.length > 1 && (
+          <p className="text-center text-gray-500 text-sm">
+            Drag an image by its handle to change the slideshow order.
+          </p>
+        )}
+
         {images.length === 0 ? (
           <p className="text-center text-gray-500">No images yet</p>
         ) : (
@@ -163,7 +179,7 @@ export default function AdminHomeHeroPage() {
           >
             <SortableContext
               items={images.map((i) => i._id)}
-              strategy={verticalListSortingStrategy}
+              strategy={rectSortingStrategy}
             >
               <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-6">
                 {images.map((img) => (
@@ -171,6 +187,7 @@ export default function AdminHomeHeroPage() {
                     key={img._id}
                     img={img}
                     handleDelete={handleDelete}
+                    deleting={deletingId === img._id}
                   />
                 ))}
               </div>
@@ -183,26 +200,46 @@ export default function AdminHomeHeroPage() {
 }
 
 // Sortable Item Component
-function SortableItem({ img, handleDelete }) {
+function SortableItem({ img, handleDelete, deleting }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: img._id });
 
   return (
     <div
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
       }}
-      className="relative bg-white rounded-2xl shadow-md hover:shadow-lg overflow-hidden cursor-grab"
+      className={`relative bg-white rounded-2xl shadow-md hover:shadow-lg overflow-hidden ${
+        deleting ? "opacity-50" : ""
+      }`}
     >
-      <img src={img.image?.url} className="w-full h-48 object-cover" />
+      <img
+        src={img.image?.url}
+        alt="Homepage hero"
+        className="w-full h-48 object-cover"
+      />
+
+      {/* ✅ DRAG HANDLE ONLY — the rest of the card stays clickable */}
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        aria-label="Drag to reorder"
+        title="Drag to reorder"
+        className="absolute top-2 left-2 bg-white/90 text-gray-700 p-2 rounded-full shadow cursor-grab active:cursor-grabbing touch-none"
+      >
+        <FaGripVertical size={14} />
+      </button>
 
       <button
+        type="button"
         onClick={() => handleDelete(img._id)}
-        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow hover:bg-red-600"
+        disabled={deleting}
+        aria-label="Delete image"
+        title="Delete image"
+        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full shadow hover:bg-red-600 disabled:cursor-not-allowed"
       >
         <FaTrash size={14} />
       </button>

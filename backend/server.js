@@ -7,15 +7,14 @@ import connectDB from "./src/config/db.js";
 import homeHeroRoutes from "./src/routes/homeHeroRoutes.js";
 import placementRoutes from "./src/routes/placementRoutes.js";
 import visitedCompanyRoutes from "./src/routes/visitedCompanyRoutes.js";
-import eventRoutes from "./src/routes/eventRoutes.js";
 import placedStudentRoutes from "./src/routes/placedStudentRoutes.js";
 import teamRoutes from "./src/routes/teamRoutes.js";
-import announcementRoutes from "./src/routes/announcementRoutes.js";
 import recruiterLogoRoutes from "./src/routes/recruiterLogoRoutes.js";
 import companyExpenseRoutes from "./src/routes/companyExpenseRoutes.js";
 import budgetRoutes from "./src/routes/budgetRoutes.js";
 import budgetUsageRoutes from "./src/routes/budgetUsageRoutes.js";
 import galleryRoutes from "./src/routes/galleryRoutes.js";
+import { requireAdmin } from "./src/middleware/requireAdmin.js";
 
 // ---------------------- INITIAL CONFIG ----------------------
 const app = express();
@@ -65,14 +64,25 @@ app.get("/", (req, res) => {
   res.send("KPT Placement API Running ✅");
 });
 
+// ---------------------- ADMIN PROTECTION ----------------------
+// Anyone can read the public data, but only signed-in admins can change it
+app.use("/api", (req, res, next) => {
+  if (req.method === "GET") return next();
+  requireAdmin(req, res, next);
+});
+
+// Expenses and budget are internal, so reading them needs sign-in too
+app.use(
+  ["/api/company-expenses", "/api/budget", "/api/budget-usage"],
+  requireAdmin
+);
+
 // ---------------------- API ROUTES ----------------------
 app.use("/api/home-hero", homeHeroRoutes);
 app.use("/api/placements", placementRoutes);
 app.use("/api/placed-students", placedStudentRoutes);
 app.use("/api/visited-companies", visitedCompanyRoutes);
-app.use("/api/events", eventRoutes);
 app.use("/api/team", teamRoutes);
-app.use("/api/announcements", announcementRoutes);
 app.use("/api/recruiter-logos", recruiterLogoRoutes);
 app.use("/api/company-expenses", companyExpenseRoutes);
 app.use("/api/budget", budgetRoutes);

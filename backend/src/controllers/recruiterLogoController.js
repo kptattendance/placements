@@ -55,7 +55,9 @@ export const updateRecruiterLogo = async (req, res) => {
     if (!logo) return res.status(404).json({ message: "Not found" });
 
     if (req.file) {
-      await cloudinary.uploader.destroy(logo.image.public_id);
+      if (logo.image?.public_id) {
+        await cloudinary.uploader.destroy(logo.image.public_id);
+      }
 
       logo.image = {
         url: req.file.path,

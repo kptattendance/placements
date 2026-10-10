@@ -34,7 +34,9 @@ export const updateGalleryPhoto = async (req, res) => {
     if (!photo) return res.status(404).json({ message: "Not found" });
 
     if (req.file) {
-      await cloudinary.uploader.destroy(photo.image.public_id);
+      if (photo.image?.public_id) {
+        await cloudinary.uploader.destroy(photo.image.public_id);
+      }
 
       photo.image = {
         url: req.file.path,

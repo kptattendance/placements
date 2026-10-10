@@ -54,7 +54,9 @@ export const createVisitedCompany = async (req, res) => {
 // READ ALL
 export const getAllVisitedCompanies = async (req, res) => {
   try {
-    const companies = await VisitedCompany.find().populate("expenses");
+    const companies = await VisitedCompany.find()
+      .select("-expenses")
+      .sort({ visitDate: -1 });
 
 const cleaned = companies.map((c) => ({
   ...c._doc,
@@ -76,7 +78,7 @@ res.json(cleaned);
 // READ ONE
 export const getVisitedCompanyById = async (req, res) => {
   try {
-    const company = await VisitedCompany.findById(req.params.id).populate("expenses");
+    const company = await VisitedCompany.findById(req.params.id).select("-expenses");
     if (!company) return res.status(404).json({ message: "Not found" });
 
     const cleaned = {
