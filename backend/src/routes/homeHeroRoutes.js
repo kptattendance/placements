@@ -1,6 +1,5 @@
 import express from "express";
-import multer from "multer";
-import storage from "../config/cloudinaryStorage.js";
+import upload from "../config/upload.js";
 
 import {
   uploadHeroImage,
@@ -11,7 +10,6 @@ import {
 
 
 const router = express.Router();
-const upload = multer({ storage });
 
 router.post("/", upload.single("image"), uploadHeroImage);
 router.get("/", getHeroImages);

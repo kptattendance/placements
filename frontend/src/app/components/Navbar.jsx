@@ -141,7 +141,7 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-3 sm:px-5 lg:px-2">
+      <div className="mx-auto max-w-7xl px-3 sm:px-5">
         <div className="flex min-h-[72px] items-center justify-between gap-3">
 
           {/* =========================
@@ -155,15 +155,15 @@ export default function Navbar() {
             <img
               src="/logo.jpg"
               alt="KPT Logo"
-              className="h-12 w-auto shrink-0 sm:h-14 lg:h-16"
+              className="h-12 w-auto shrink-0 sm:h-14"
             />
 
-            <span className="hidden text-sm font-bold leading-tight text-blue-800 sm:block lg:text-lg">
+            <span className="hidden whitespace-nowrap text-base font-bold leading-tight text-blue-800 sm:block lg:hidden xl:block xl:text-lg">
               KPT Training & Placements
             </span>
 
             {/* Short title for very small screens */}
-            <span className="block text-sm font-bold leading-tight text-blue-800 sm:hidden">
+            <span className="block whitespace-nowrap text-sm font-bold leading-tight text-blue-800 sm:hidden lg:block xl:hidden">
               KPT Placements
             </span>
           </Link>
@@ -171,7 +171,7 @@ export default function Navbar() {
           {/* =========================
               DESKTOP NAVIGATION
           ========================== */}
-          <div className="hidden items-center gap-1 md:flex lg:gap-3">
+          <div className="hidden items-center gap-0.5 lg:flex xl:gap-1">
             {groupedMenus.map((group) => {
               /* Direct link */
               if (group.href) {
@@ -179,7 +179,7 @@ export default function Navbar() {
                   <Link
                     key={group.title}
                     href={group.href}
-                    className={`rounded-lg px-3 py-2 text-sm font-medium transition lg:px-4 ${
+                    className={`whitespace-nowrap rounded-lg px-2 py-2 text-[13px] font-medium transition xl:px-3 xl:text-sm ${
                       pathname === group.href
                         ? "bg-blue-50 font-semibold text-blue-700"
                         : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
@@ -207,7 +207,7 @@ export default function Navbar() {
                           : group.title
                       )
                     }
-                    className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition lg:px-4 ${
+                    className={`flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-[13px] font-medium transition xl:px-3 xl:text-sm ${
                       group.links?.some(
                         (link) => pathname === link.href
                       )
@@ -235,10 +235,10 @@ export default function Navbar() {
             {/* =========================
                 AUTH DESKTOP
             ========================== */}
-            <div className="ml-2 flex items-center gap-3 border-l border-gray-200 pl-3">
+            <div className="ml-1 flex items-center gap-2 border-l border-gray-200 pl-2 xl:ml-2 xl:gap-3 xl:pl-3">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800">
+                  <button className="whitespace-nowrap rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-800">
                     Sign In
                   </button>
                 </SignInButton>
@@ -272,7 +272,7 @@ export default function Navbar() {
               setMenuOpen((prev) => !prev);
               setOpenDropdown(null);
             }}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-700 transition hover:bg-blue-50 hover:text-blue-700 md:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-700 transition hover:bg-blue-50 hover:text-blue-700 lg:hidden"
           >
             {menuOpen ? <X size={25} /> : <Menu size={25} />}
           </button>
@@ -283,7 +283,7 @@ export default function Navbar() {
           MOBILE DRAWER
       ========================== */}
       {menuOpen && (
-        <div className="border-t border-gray-100 bg-white shadow-lg md:hidden">
+        <div className="border-t border-gray-100 bg-white shadow-lg lg:hidden">
           <div className="max-h-[calc(100vh-72px)] overflow-y-auto px-4 py-4">
 
             <div className="space-y-1">

@@ -505,9 +505,9 @@ const recruiters = [
 
 export default function RecruitersPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-16 px-6 text-gray-800">
+    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-10 md:py-16 px-4 md:px-6 text-gray-800">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-blue-800 mb-4 text-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-blue-800 mb-4 text-center">
           Our Recruiters
         </h1>
         <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
@@ -516,8 +516,33 @@ export default function RecruitersPage() {
           various departments.
         </p>
 
-        {/* Table */}
-        <div className="overflow-x-auto rounded-2xl shadow-md border border-gray-100">
+        {/* Cards (phones) */}
+        <div className="grid gap-3 sm:grid-cols-2 md:hidden">
+          {recruiters.map((rec, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-xl border border-gray-100 shadow-sm p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="font-semibold text-gray-900">
+                  {index + 1}. {rec.name}
+                </h2>
+                <span className="shrink-0 font-semibold text-blue-700">
+                  ₹{rec.pkg.toLocaleString()}
+                  <span className="text-xs font-normal text-gray-500">
+                    {" "}
+                    / month
+                  </span>
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-gray-600">📍 {rec.location}</p>
+              <p className="mt-1 text-sm text-gray-600">{rec.dept}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Table (tablets and laptops) */}
+        <div className="hidden md:block overflow-x-auto rounded-2xl shadow-md border border-gray-100">
           <table className="min-w-full bg-white rounded-2xl">
             <thead className="bg-blue-800 text-white sticky top-0">
               <tr>

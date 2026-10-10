@@ -96,7 +96,7 @@ export default function Home() {
       {/* =====================================================
           HERO SECTION
       ===================================================== */}
-      <section className="relative h-[85vh] flex flex-col items-center justify-center text-white overflow-hidden">
+      <section className="relative min-h-[85vh] py-10 flex flex-col items-center justify-center text-white overflow-hidden">
 
         {/* =================================================
             BACKGROUND IMAGES
@@ -140,11 +140,11 @@ export default function Home() {
         ================================================= */}
         <div className="relative z-10 text-center px-4 max-w-4xl">
 
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold mb-4 leading-tight drop-shadow-lg">
             Training & Placement Cell
           </h1>
 
-          <p className="text-lg md:text-xl mb-8 text-blue-100">
+          <p className="text-base sm:text-lg md:text-xl mb-8 text-blue-100">
             Karnataka Govt. Polytechnic, Mangalore —
             Bridging Academia and Industry.
           </p>
@@ -188,7 +188,7 @@ export default function Home() {
             ].map((item, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center text-blue-50 hover:scale-105 transition-transform"
+                className="flex flex-col items-center text-blue-50 hover:scale-105 transition-transform last:col-span-2 sm:last:col-span-1"
               >
                 {item.icon}
                 <span>{item.label}</span>

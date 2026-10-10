@@ -1,6 +1,5 @@
 import express from "express";
-import multer from "multer";
-import storage from "../config/cloudinaryStorage.js";
+import upload from "../config/upload.js";
 
 import {
   createMember,
@@ -12,7 +11,6 @@ import {
 } from "../controllers/teamController.js";
 
 const router = express.Router();
-const upload = multer({ storage });
 
 
 // ✅ PLACE THIS FIRST

@@ -2,13 +2,33 @@ import CompanyExpense from "../models/companyExpenseModel.js";
 import VisitedCompany from "../models/visitedCompanyModel.js";
 import Budget from "../models/budgetModel.js"; // ensure this exists
 
+// Each approval can only be given by its own role
+const APPROVAL_BY_ROLE = {
+  "placement-officer": "approvedByOfficer",
+  "sw-officer": "approvedBySWOfficer",
+  principal: "approvedByPrincipal",
+};
+
+// Keep only what this admin is allowed to send
+const pickExpenseFields = (body, admin) => {
+  const fields = {};
+  ["company", "otherCategory", "submittedBy", "items"].forEach((key) => {
+    if (body[key] !== undefined) fields[key] = body[key];
+  });
+
+  Object.entries(APPROVAL_BY_ROLE).forEach(([role, field]) => {
+    const allowed = admin?.unrestricted || admin?.role === role;
+    if (allowed && typeof body[field] === "boolean") fields[field] = body[field];
+  });
+
+  return fields;
+};
+
 // Create expense
 export const createExpense = async (req, res) => {
   try {
-    // server log for debugging
-    console.log("Received expense body:", req.body);
-
-    const payload = { ...req.body };
+    // A new expense always starts unapproved
+    const payload = pickExpenseFields(req.body, null);
 
     if (!req.body.company) {
       delete payload.company;
@@ -18,7 +38,7 @@ export const createExpense = async (req, res) => {
 
     if (expense.company) {
       await VisitedCompany.findByIdAndUpdate(expense.company, {
-        $push: { expenses: expense._id },
+        $addToSet: { expenses: expense._id },
       });
     }
 
@@ -33,7 +53,9 @@ export const createExpense = async (req, res) => {
 // ROLE-BASED EXPENSE FILTERING
 export const getAllExpenses = async (req, res) => {
   try {
-    const { role, user } = req.query;
+    const { user } = req.query;
+    // Trust the signed-in admin's role, not what the browser claims
+    const role = req.admin?.role || req.query.role;
     let filter = {};
 
     // 1️⃣ Coordinator → only their own expenses
@@ -86,6 +108,8 @@ export const updateExpense = async (req, res) => {
     const prevApprovedBySW = expense.approvedBySWOfficer === true;
     const prevTotalAmount = expense.totalAmount || 0;
 
+    const updates = pickExpenseFields(req.body, req.admin);
+
     // If company changed, remove old relation (we'll re-add later if necessary)
     if (req.body.company && req.body.company !== expense.company?.toString()) {
       if (expense.company) {
@@ -96,13 +120,13 @@ export const updateExpense = async (req, res) => {
     }
 
     // Apply incoming fields to expense
-    Object.assign(expense, req.body);
+    Object.assign(expense, updates);
     await expense.save(); // runs pre("save") hook to update totalAmount & status
 
     // Add to new company
     if (expense.company) {
       await VisitedCompany.findByIdAndUpdate(expense.company, {
-        $push: { expenses: expense._id },
+        $addToSet: { expenses: expense._id },
       });
     }
 
@@ -112,7 +136,7 @@ export const updateExpense = async (req, res) => {
     const budget = await Budget.findOne();
 
     // 1) SW approval granted now (and wasn't earlier)
-    if (req.body.approvedBySWOfficer === true && !prevApprovedBySW) {
+    if (updates.approvedBySWOfficer === true && !prevApprovedBySW) {
       // if not already counted
       if (!expense._swUsed) {
         if (budget) {
@@ -126,7 +150,7 @@ export const updateExpense = async (req, res) => {
     }
 
     // 2) SW approval reverted (was true, now false) -> rollback budget if it was applied
-    if (req.body.approvedBySWOfficer === false && prevApprovedBySW) {
+    if (updates.approvedBySWOfficer === false && prevApprovedBySW) {
       if (expense._swUsed && budget) {
         budget.totalUsed = Number(budget.totalUsed || 0) - Number(expense.totalAmount || 0);
         if (budget.totalUsed < 0) budget.totalUsed = 0;

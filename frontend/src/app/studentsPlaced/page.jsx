@@ -111,16 +111,16 @@ export default function PlacedStudents() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-sky-50 py-12 px-4 md:px-10">
       {/* Heading */}
-      <h1 className="text-4xl font-extrabold text-center text-blue-900 mb-10 drop-shadow-sm">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center text-blue-900 mb-8 md:mb-10 drop-shadow-sm">
         🌟 Placed Students
       </h1>
 
       {/* Filters */}
-      <div className="flex flex-wrap justify-center gap-4 mb-10 bg-white/70 backdrop-blur-md p-4 rounded-xl shadow-lg border border-blue-100">
+      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-4 mb-10 bg-white/70 backdrop-blur-md p-4 rounded-xl shadow-lg border border-blue-100">
         <select
           value={filters.year}
           onChange={(e) => handleChange("year", e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
         >
           <option value="">All Years</option>
 
@@ -136,7 +136,7 @@ export default function PlacedStudents() {
           placeholder="Filter by Branch"
           value={filters.branch}
           onChange={(e) => handleChange("branch", e.target.value)}
-          className="border border-gray-300 rounded-md px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
         />
 
         <input
@@ -144,7 +144,7 @@ export default function PlacedStudents() {
           placeholder="Filter by Company"
           value={filters.company}
           onChange={(e) => handleChange("company", e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
         />
 
         <input
@@ -152,7 +152,7 @@ export default function PlacedStudents() {
           placeholder="Filter by Location"
           value={filters.location}
           onChange={(e) => handleChange("location", e.target.value)}
-          className="border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
         />
 
         <button
@@ -164,7 +164,7 @@ export default function PlacedStudents() {
               location: "",
             })
           }
-          className="bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
+          className="col-span-2 sm:col-span-1 bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
         >
           Clear
         </button>
@@ -231,7 +231,7 @@ export default function PlacedStudents() {
                   </div>
 
                   {/* Name */}
-                  <h2 className="mt-3 text-3xl font-extrabold text-[#0b2c6b] tracking-wide uppercase leading-tight">
+                  <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0b2c6b] break-words max-w-full tracking-wide uppercase leading-tight">
                     {toTitleCase(s.name)}
                   </h2>
 

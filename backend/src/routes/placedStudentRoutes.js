@@ -1,6 +1,5 @@
 import express from "express";
-import multer from "multer";
-import storage from "../config/cloudinaryStorage.js";
+import upload from "../config/upload.js";
 
 import {
   createPlacedStudent,
@@ -10,7 +9,6 @@ import {
 } from "../controllers/placedStudentController.js";
 
 const router = express.Router();
-const upload = multer({ storage });
 
 router.post("/", upload.single("image"), createPlacedStudent);
 router.get("/", getAllPlacedStudents);

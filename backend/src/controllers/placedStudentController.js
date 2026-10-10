@@ -1,6 +1,25 @@
 import PlacedStudent from "../models/placedStudentModel.js";
 import cloudinary from "../config/cloudinary.js";
-import fs from "fs";
+
+// Only these fields may come from the admin form
+const STUDENT_FIELDS = [
+  "name",
+  "registerNumber",
+  "branch",
+  "yearOfPassing",
+  "companyName",
+  "location",
+  "packageOffered",
+  "designation",
+];
+
+const pickStudentFields = (body) => {
+  const fields = {};
+  STUDENT_FIELDS.forEach((key) => {
+    if (body[key] !== undefined) fields[key] = body[key];
+  });
+  return fields;
+};
 
 // ✅ Create Placed Student with image upload
 export const createPlacedStudent = async (req, res) => {
@@ -8,7 +27,7 @@ export const createPlacedStudent = async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "Image required" });
 
     const student = await PlacedStudent.create({
-      ...req.body,
+      ...pickStudentFields(req.body),
       image: {
         url: req.file.path,
         public_id: req.file.filename,
@@ -69,11 +88,7 @@ export const updatePlacedStudent = async (req, res) => {
     }
 
     // Update all other fields EXCEPT image
-    Object.keys(req.body).forEach((key) => {
-      if (key !== "image") {
-        student[key] = req.body[key];
-      }
-    });
+    Object.assign(student, pickStudentFields(req.body));
 
     await student.save();
     res.json(student);

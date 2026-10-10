@@ -26,21 +26,21 @@ export default function AboutPage() {
         <h2 className="text-3xl font-semibold text-blue-800 mb-6">
           About the Cell
         </h2>
-        <p className="leading-relaxed mb-4 text-justify">
+        <p className="leading-relaxed mb-4 sm:text-justify">
           The <strong>Training and Placement Cell (T&P Cell)</strong> of{" "}
           <strong>Karnataka Government Polytechnic, Mangalore</strong> serves as
           a bridge between academic learning and professional application. It
           aims to empower diploma students with technical competence, industry
           awareness, and personal excellence.
         </p>
-        <p className="leading-relaxed mb-4 text-justify">
+        <p className="leading-relaxed mb-4 sm:text-justify">
           The Cell organizes <strong>skill development programs</strong>,
           workshops, internships, and industrial visits that enhance students’
           confidence and employability. Our ultimate goal is to nurture{" "}
           <strong>job creators rather than job seekers</strong>, motivating
           students to explore entrepreneurship and innovation.
         </p>
-        <p className="leading-relaxed text-justify">
+        <p className="leading-relaxed sm:text-justify">
           We envision a future where every student is equipped not only to be
           employed but to create opportunities and lead with purpose in the
           ever-evolving industrial landscape.

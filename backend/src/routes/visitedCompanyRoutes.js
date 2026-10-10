@@ -1,6 +1,5 @@
 import express from "express";
-import multer from "multer";
-import storage from "../config/cloudinaryStorage.js";
+import upload from "../config/upload.js";
 
 import {
   createVisitedCompany,
@@ -11,7 +10,6 @@ import {
 } from "../controllers/visitedCompanyController.js";
 
 const router = express.Router();
-const upload = multer({ storage });
 
 router.get("/", getAllVisitedCompanies);
 router.get("/:id", getVisitedCompanyById);

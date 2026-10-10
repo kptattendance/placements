@@ -68,36 +68,36 @@ export default function RecentlyVisitedCompanies() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 px-4 py-8 md:p-8">
       <h1 className="text-3xl md:text-4xl font-bold text-center text-blue-800 mb-10">
         🏢 Recently Visited Companies
       </h1>
 
       {/* Filters */}
-      <div className="flex text-gray-500 flex-wrap justify-center gap-3 mb-10">
+      <div className="grid grid-cols-2 gap-3 text-gray-500 sm:flex sm:flex-wrap sm:justify-center mb-10">
         <input
           placeholder="Branch"
           value={filters.branch}
           onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
-          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-40"
+          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full min-w-0 bg-white sm:w-40"
         />
         <input
           placeholder="Company"
           value={filters.company}
           onChange={(e) => setFilters({ ...filters, company: e.target.value })}
-          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-52"
+          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full min-w-0 bg-white col-span-2 sm:w-52"
         />
         <input
           placeholder="Location"
           value={filters.location}
           onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-40"
+          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full min-w-0 bg-white sm:w-40"
         />
         <button
           onClick={() =>
             setFilters({ branch: "", company: "", location: "" })
           }
-          className="bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-md hover:bg-blue-200 transition"
+          className="col-span-2 bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-md hover:bg-blue-200 transition"
         >
           Clear
         </button>
@@ -136,8 +136,8 @@ export default function RecentlyVisitedCompanies() {
 
               {/* Info */}
               <div className="p-5">
-                <h2 className="text-xl font-bold text-blue-900 mb-1">
-                  {c.companyName.toUpperCase()}
+                <h2 className="text-xl font-bold text-blue-900 mb-1 break-words">
+                  {c.companyName?.toUpperCase()}
                 </h2>
 
                 <div className="flex items-center text-gray-600 text-sm mb-2">
@@ -189,7 +189,7 @@ export default function RecentlyVisitedCompanies() {
       {/* Image Modal */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-white/50 flex items-center justify-center z-50 p-2 sm:p-4"
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-2 sm:p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div

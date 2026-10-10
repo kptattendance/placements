@@ -53,7 +53,7 @@ export default function DownloadsPage() {
   ];
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 text-gray-800 py-16 px-6">
+    <section className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 text-gray-800 py-10 md:py-16 px-4 md:px-6">
       <div className="max-w-6xl mx-auto">
         {/* ===== Page Header ===== */}
         <div className="text-center mb-12">
@@ -67,8 +67,28 @@ export default function DownloadsPage() {
           <div className="mt-4 w-24 h-1 bg-blue-700 mx-auto rounded-full"></div>
         </div>
 
+        {/* ===== Downloads List (phones) ===== */}
+        <ul className="space-y-3 sm:hidden">
+          {files.map((file) => (
+            <li key={file.id}>
+              <Link
+                href={file.file}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-4 active:bg-blue-50"
+              >
+                <FileText className="w-5 h-5 shrink-0 text-blue-600" />
+                <span className="flex-1 text-gray-800 font-medium">
+                  {file.name}
+                </span>
+                <Download className="w-5 h-5 shrink-0 text-blue-700" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+
         {/* ===== Downloads Table ===== */}
-        <div className="overflow-x-auto bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="hidden sm:block overflow-x-auto bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
           <table className="min-w-full divide-y divide-gray-200 text-left">
             <thead className="bg-blue-700 text-white">
               <tr>

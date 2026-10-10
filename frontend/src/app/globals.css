@@ -1,4 +1,11 @@
 @import "tailwindcss";
+
+/* Never let one wide element make the whole page scroll sideways on phones */
+html,
+body {
+  overflow-x: clip;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -1,6 +1,5 @@
 import express from "express";
-import multer from "multer";
-import storage from "../config/cloudinaryStorage.js";
+import upload from "../config/upload.js";
 
 import {
   createGalleryPhoto,
@@ -10,7 +9,6 @@ import {
 } from "../controllers/galleryController.js";
 
 const router = express.Router();
-const upload = multer({ storage });
 
 router.post("/", upload.single("image"), createGalleryPhoto);
 router.get("/", getAllGalleryPhotos);

@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 
+// Stop query operators ($gt, $ne ...) sent by a client from being run
+mongoose.set("sanitizeFilter", true);
+
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);

@@ -1,4 +1,13 @@
 import Placement from "../models/placementModel.js";
+import { isAdminRequest } from "../middleware/requireAdmin.js";
+
+// Only these fields may come from the admin form
+const pickPlacementFields = (body) => {
+  const fields = {};
+  if (body.isPublic !== undefined) fields.isPublic = body.isPublic === true;
+  if (Array.isArray(body.programs)) fields.programs = body.programs;
+  return fields;
+};
 
 // Placement % = students placed / total student strength
 const percent = (part, whole) =>
@@ -50,15 +59,19 @@ const recalcTotals = (placement) => {
 // ✅ CREATE new year data
 export const createPlacement = async (req, res) => {
   try {
-    const existing = await Placement.findOne({ year: req.body.year });
+    const year = Number(req.body.year);
+    if (!Number.isInteger(year) || year < 1950 || year > 2100)
+      return res.status(400).json({ message: "Enter a valid year" });
+
+    const existing = await Placement.findOne({ year });
     if (existing)
       return res
         .status(400)
         .json({
-          message: `Placement record for ${req.body.year} already exists`,
+          message: `Placement record for ${year} already exists`,
         });
 
-    let placement = new Placement(req.body);
+    let placement = new Placement({ year, ...pickPlacementFields(req.body) });
     placement = recalcTotals(placement);
     const newData = await placement.save();
 
@@ -82,8 +95,17 @@ export const getAllPlacements = async (req, res) => {
 // ✅ READ one year
 export const getPlacementByYear = async (req, res) => {
   try {
-    const data = await Placement.findOne({ year: req.params.year });
+    const year = Number(req.params.year);
+    if (!Number.isInteger(year))
+      return res.status(404).json({ message: "No data found" });
+
+    const data = await Placement.findOne({ year });
     if (!data) return res.status(404).json({ message: "No data found" });
+
+    // Years not yet published are visible to admins only
+    if (!data.isPublic && !(await isAdminRequest(req)))
+      return res.status(404).json({ message: "No data found" });
+
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -98,7 +120,7 @@ export const updatePlacement = async (req, res) => {
       return res.status(404).json({ message: "Placement year not found" });
 
     // Merge updates
-    Object.assign(placement, req.body);
+    Object.assign(placement, pickPlacementFields(req.body));
     placement = recalcTotals(placement);
 
     const updated = await placement.save();

@@ -38,7 +38,7 @@ export default function PlacementTermsPage() {
       {/* ===== Content Section ===== */}
       <section className="max-w-7xl mx-auto py-12 px-6 md:px-10">
         {/* Intro */}
-        <p className="text-lg leading-relaxed mb-8 text-justify">
+        <p className="text-lg leading-relaxed mb-8 sm:text-justify">
           The <strong>Placement Cell</strong> at{" "}
           <strong>Karnataka Government Polytechnic, Mangalore</strong> welcomes
           your esteemed organization to participate in our campus recruitment

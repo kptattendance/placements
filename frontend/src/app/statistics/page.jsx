@@ -234,9 +234,13 @@ function DetailTable({ computed, year }) {
 
   return (
     <section className="bg-white rounded-2xl border border-blue-100 shadow-sm p-5 md:p-6">
-      <h2 className="text-lg font-semibold text-blue-900 mb-4">
+      <h2 className="text-lg font-semibold text-blue-900 mb-3">
         Detailed Statistics — Passing Year {year}
       </h2>
+
+      <p className="lg:hidden text-xs text-gray-500 mb-2">
+        Swipe the table sideways to see all columns →
+      </p>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="min-w-full text-[13px] text-center border-collapse">

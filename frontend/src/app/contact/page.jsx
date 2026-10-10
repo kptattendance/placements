@@ -68,7 +68,21 @@ export default function ContactPage() {
             hear from you.
           </p>
 
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              // Opens the visitor's email app with the message filled in
+              e.preventDefault();
+              const form = new FormData(e.currentTarget);
+              const subject = `Enquiry from ${form.get("name")}`;
+              const body = `${form.get("message")}
+
+From: ${form.get("name")} (${form.get("email")})`;
+              window.location.href = `mailto:kptplacements@gmail.com?subject=${encodeURIComponent(
+                subject
+              )}&body=${encodeURIComponent(body)}`;
+            }}
+            className="space-y-4"
+          >
             <div>
               <label
                 htmlFor="name"
