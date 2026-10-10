@@ -56,7 +56,7 @@ export const getAllVisitedCompanies = async (req, res) => {
   try {
     const companies = await VisitedCompany.find()
       .select("-expenses")
-      .sort({ visitDate: -1 });
+      .sort({ createdAt: -1 }); // recently added first
 
 const cleaned = companies.map((c) => ({
   ...c._doc,
