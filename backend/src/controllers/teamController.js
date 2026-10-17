@@ -1,5 +1,5 @@
 import TeamMember from "../models/TeamMember.js";
-import cloudinary from "../config/cloudinary.js";
+import { deleteImage } from "../utils/deleteImage.js";
 
 // CREATE MEMBER
 export const createMember = async (req, res) => {
@@ -70,22 +70,18 @@ export const updateMember = async (req, res) => {
     const member = await TeamMember.findById(req.params.id);
     if (!member) return res.status(404).json({ message: "Member not found" });
 
+    // Old photo is removed only after the new one is saved
+    let oldImageId = null;
+
     // IMAGE UPDATE
     if (file) {
-      const oldId = member.image?.public_id;
+      oldImageId = member.image?.public_id;
 
       member.image = {
         public_id: file.filename,
         url: file.path,
       };
 
-      if (oldId) {
-        try {
-          await cloudinary.uploader.destroy(oldId);
-        } catch (err) {
-          console.warn("Image delete failed:", err);
-        }
-      }
     }
 
     // UPDATE DATA
@@ -96,6 +92,7 @@ export const updateMember = async (req, res) => {
     member.phone = phone || member.phone;
 
     const updated = await member.save();
+    await deleteImage(oldImageId);
     res.status(200).json(updated);
 
   } catch (error) {
@@ -110,9 +107,7 @@ export const deleteMember = async (req, res) => {
     const member = await TeamMember.findById(req.params.id);
     if (!member) return res.status(404).json({ message: "Member not found" });
 
-    if (member.image?.public_id) {
-      await cloudinary.uploader.destroy(member.image.public_id);
-    }
+    await deleteImage(member.image?.public_id);
 
     await member.deleteOne();
 

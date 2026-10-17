@@ -1,5 +1,5 @@
 import Gallery from "../models/galleryModel.js";
-import cloudinary from "../config/cloudinary.js";
+import { deleteImage } from "../utils/deleteImage.js";
 
 export const createGalleryPhoto = async (req, res) => {
   try {
@@ -33,10 +33,10 @@ export const updateGalleryPhoto = async (req, res) => {
     const photo = await Gallery.findById(req.params.id);
     if (!photo) return res.status(404).json({ message: "Not found" });
 
+    // Old photo is removed only after the new one is saved
+    const oldImageId = req.file ? photo.image?.public_id : null;
+
     if (req.file) {
-      if (photo.image?.public_id) {
-        await cloudinary.uploader.destroy(photo.image.public_id);
-      }
 
       photo.image = {
         url: req.file.path,
@@ -46,6 +46,7 @@ export const updateGalleryPhoto = async (req, res) => {
 
     photo.title = req.body.title || photo.title;
     await photo.save();
+    await deleteImage(oldImageId);
 
     res.json(photo);
   } catch (err) {
@@ -58,9 +59,7 @@ export const deleteGalleryPhoto = async (req, res) => {
     const photo = await Gallery.findById(req.params.id);
     if (!photo) return res.status(404).json({ message: "Not found" });
 
-    if (photo.image?.public_id) {
-      await cloudinary.uploader.destroy(photo.image.public_id);
-    }
+    await deleteImage(photo.image?.public_id);
 
     await photo.deleteOne();
 

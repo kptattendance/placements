@@ -19,6 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 
 import { CSS } from "@dnd-kit/utilities";
+import { cldImage, compressImage } from "../../../lib/images";
 
 export default function TeamAdminPage() {
   const [members, setMembers] = useState([]);
@@ -94,8 +95,11 @@ export default function TeamAdminPage() {
     try {
       const data = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (value) data.append(key, value);
+        if (value && key !== "image") data.append(key, value);
       });
+      if (formData.image) {
+        data.append("image", await compressImage(formData.image));
+      }
 
       if (editingId) {
         await axios.put(`${baseURL}/api/team/${editingId}`, data);
@@ -317,7 +321,7 @@ function SortableTeamCard({ member, onEdit, onDelete }) {
       {/* LEFT SECTION */}
       <div className="flex items-center gap-4">
         <img
-          src={member.image?.url || "/placeholder.jpg"}
+          src={cldImage(member.image?.url, 120) || "/placeholder.jpg"}
           alt={member.name}
           className="w-14 h-14 rounded-full border object-cover"
         />

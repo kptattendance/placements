@@ -20,6 +20,7 @@ import {
   companyKey,
   companyOptions,
 } from "../../lib/filterOptions";
+import { cldImage } from "../../lib/images";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -159,10 +160,12 @@ export default function RecentlyVisitedCompanies() {
               >
                 <img
                   src={
-                    c.image?.url ||
+                    cldImage(c.image?.url, 640) ||
                     "/visited-company-placeholder.png"
                   }
                   alt={c.companyName}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
@@ -239,7 +242,7 @@ export default function RecentlyVisitedCompanies() {
 
             {/* Image */}
             <img
-              src={selectedImage}
+              src={cldImage(selectedImage, 1600)}
               alt="Preview"
               className="w-auto h-auto max-w-[95vw] max-h-[95vh] object-scale-down rounded-lg"
             />

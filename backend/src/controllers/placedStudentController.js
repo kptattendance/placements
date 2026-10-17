@@ -1,5 +1,5 @@
 import PlacedStudent from "../models/placedStudentModel.js";
-import cloudinary from "../config/cloudinary.js";
+import { deleteImage } from "../utils/deleteImage.js";
 
 // Only these fields may come from the admin form
 const STUDENT_FIELDS = [
@@ -58,9 +58,7 @@ export const deletePlacedStudent = async (req, res) => {
     if (!student)
       return res.status(404).json({ message: "Student not found" });
 
-    if (student.image?.public_id) {
-      await cloudinary.uploader.destroy(student.image.public_id);
-    }
+    await deleteImage(student.image?.public_id);
 
     await student.deleteOne();
     res.status(200).json({ message: "Deleted successfully" });
@@ -76,10 +74,10 @@ export const updatePlacedStudent = async (req, res) => {
     if (!student) return res.status(404).json({ message: "Not found" });
 
     // If new image uploaded → replace image
+    // Old photo is removed only after the new one is saved
+    const oldImageId = req.file ? student.image?.public_id : null;
+
     if (req.file) {
-      if (student.image?.public_id) {
-        await cloudinary.uploader.destroy(student.image.public_id);
-      }
 
       student.image = {
         url: req.file.path,
@@ -91,6 +89,7 @@ export const updatePlacedStudent = async (req, res) => {
     Object.assign(student, pickStudentFields(req.body));
 
     await student.save();
+    await deleteImage(oldImageId);
     res.json(student);
 
   } catch (err) {

@@ -13,6 +13,7 @@ import {
   companyOptions,
   BRANCH_CODES,
 } from "../../../lib/filterOptions";
+import { cldImage, compressImage } from "../../../lib/images";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -164,7 +165,7 @@ export default function VisitedCompanyManager() {
 
       fd.append("branchList", JSON.stringify(form.branchList));
 
-      if (form.image) fd.append("image", form.image);
+      if (form.image) fd.append("image", await compressImage(form.image));
 
       if (editing) {
         await axios.put(`${API}/api/visited-companies/${editing._id}`, fd);
@@ -269,7 +270,7 @@ export default function VisitedCompanyManager() {
             <div key={c._id} className="bg-white p-4 rounded-lg shadow flex gap-4">
 
               <img
-                src={c.image?.url || "/placeholder.jpg"}
+                src={cldImage(c.image?.url, 240) || "/placeholder.jpg"}
                 className="w-28 h-28 object-cover rounded-md"
               />
 

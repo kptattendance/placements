@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { cldImage, compressImage } from "../../../lib/images";
 
 export default function AdminRecruiterLogos() {
   const [logos, setLogos] = useState([]);
@@ -44,7 +45,7 @@ export default function AdminRecruiterLogos() {
     e.preventDefault();
     const data = new FormData();
     data.append("name", formData.name);
-    if (formData.image) data.append("image", formData.image);
+    if (formData.image) data.append("image", await compressImage(formData.image));
 
     try {
       setLoading(true);
@@ -193,8 +194,9 @@ export default function AdminRecruiterLogos() {
               >
                 <div className="flex justify-center items-center h-32 mb-3">
                   <img
-                    src={logo.image?.url}
+                    src={cldImage(logo.image?.url, 240)}
                     alt={logo.name}
+                    loading="lazy"
                     className="object-contain max-h-28 mx-auto"
                   />
                 </div>

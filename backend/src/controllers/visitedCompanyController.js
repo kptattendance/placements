@@ -1,5 +1,5 @@
 import VisitedCompany from "../models/visitedCompanyModel.js";
-import cloudinary from "../config/cloudinary.js";
+import { deleteImage } from "../utils/deleteImage.js";
 
 // Helper: safely convert branchList
 function parseBranchList(input) {
@@ -129,14 +129,10 @@ export const updateVisitedCompany = async (req, res) => {
     if (req.body.recruitmentType) company.recruitmentType = req.body.recruitmentType;
 
     // Image
+    // Old photo is removed only after the new one is saved
+    const oldImageId = req.file ? company.image?.public_id : null;
+
     if (req.file) {
-      if (company.image?.public_id) {
-        try {
-          await cloudinary.uploader.destroy(company.image.public_id);
-        } catch (err) {
-          console.log("Cloudinary delete failed:", err);
-        }
-      }
 
       company.image = {
         url: req.file.path,
@@ -145,6 +141,7 @@ export const updateVisitedCompany = async (req, res) => {
     }
 
     await company.save();
+    await deleteImage(oldImageId);
     res.json(company);
 
   } catch (err) {
@@ -159,13 +156,7 @@ export const deleteVisitedCompany = async (req, res) => {
     const company = await VisitedCompany.findById(req.params.id);
     if (!company) return res.status(404).json({ message: "Not found" });
 
-    if (company.image?.public_id) {
-      try {
-        await cloudinary.uploader.destroy(company.image.public_id);
-      } catch (err) {
-        console.log("Cloudinary delete failed:", err);
-      }
-    }
+    await deleteImage(company.image?.public_id);
 
     await company.deleteOne();
     res.json({ message: "Deleted successfully" });

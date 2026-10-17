@@ -10,6 +10,7 @@ import {
   companyKey,
   companyOptions,
 } from "../../lib/filterOptions";
+import { cldImage } from "../../lib/images";
 
 export default function PlacedStudents() {
   const [students, setStudents] = useState([]);
@@ -22,6 +23,10 @@ export default function PlacedStudents() {
   });
 
   const [loading, setLoading] = useState(true);
+
+  // Show students in batches so the page opens fast
+  const PAGE_SIZE = 24;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const branchNames = {
     AT: "Automobile Engineering",
@@ -101,6 +106,7 @@ export default function PlacedStudents() {
     }
 
     setFiltered(filteredData);
+    setVisibleCount(PAGE_SIZE);
   }, [filters, students]);
 
   // ✅ Years that actually have placed students, latest first
@@ -227,7 +233,7 @@ export default function PlacedStudents() {
         </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map((s) => {
+          {filtered.slice(0, visibleCount).map((s) => {
             return (
               <div
                 key={s._id}
@@ -236,7 +242,8 @@ export default function PlacedStudents() {
                 {/* College Background Image */}
                 <img
                   src="/kpt-bg.jpg"
-                  alt="College"
+                  alt=""
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover opacity-75"
                 />
 
@@ -259,11 +266,10 @@ export default function PlacedStudents() {
                   <div className="relative mt-2">
                     <div className="w-35 h-35 rounded-full border-[6px] border-[#d4af37] p-1 bg-white shadow-xl">
                       <img
-                        src={
-                          s.image?.url ||
-                          "/logo.jpg"
-                        }
+                        src={cldImage(s.image?.url, 320) || "/logo.jpg"}
                         alt={s.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover rounded-full"
                       />
                     </div>
@@ -321,6 +327,18 @@ export default function PlacedStudents() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {visibleCount < filtered.length && (
+        <div className="mt-10 text-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+            className="rounded-full bg-blue-700 px-6 py-2.5 font-semibold text-white shadow hover:bg-blue-800"
+          >
+            Show more students ({filtered.length - visibleCount} more)
+          </button>
         </div>
       )}
     </main>

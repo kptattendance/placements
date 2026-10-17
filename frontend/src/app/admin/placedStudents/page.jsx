@@ -21,6 +21,7 @@ import {
   companyOptions,
   cityOptions,
 } from "../../../lib/filterOptions";
+import { cldImage, compressImage } from "../../../lib/images";
 
 export default function PlacedStudentsManager() {
   const [students, setStudents] = useState([]);
@@ -96,9 +97,10 @@ export default function PlacedStudentsManager() {
     const data = new FormData();
 
     Object.keys(formData).forEach((key) => {
-      if (key === "image" && !formData.image) return;
+      if (key === "image") return;
       data.append(key, formData[key]);
     });
+    if (formData.image) data.append("image", await compressImage(formData.image));
 
     try {
       setUploading(true);
@@ -360,7 +362,7 @@ export default function PlacedStudentsManager() {
                 >
                   <td className="border border-gray-200 px-3 py-2 text-center">
                     <Avatar
-                      src={s.image?.url}
+                      src={cldImage(s.image?.url, 120)}
                       alt={s.name}
                       sx={{
                         width: 45,

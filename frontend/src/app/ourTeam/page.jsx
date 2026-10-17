@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { cldImage } from "../../lib/images";
 
 export default function OurTeamPage() {
   const [team, setTeam] = useState([]);
@@ -137,7 +138,7 @@ export default function OurTeamPage() {
                 <div className="tree-level">
                   {tree.principal.map((p) => (
                     <div key={p._id} className="node">
-                      <img src={p.image?.url} alt={p.name} />
+                      <img src={cldImage(p.image?.url, 240)} alt={p.name} loading="lazy" />
                       <h3 className="font-bold text-blue-800 mt-2">{p.name}</h3>
                       <p>{p.designation}</p>
                       <p className="text-gray-500">{p.department}</p>
@@ -154,7 +155,7 @@ export default function OurTeamPage() {
                 <div className="tree-level">
                   {[...tree.tpo, ...tree.placementOffice].map((t) => (
                     <div key={t._id} className="node">
-                      <img src={t.image?.url} alt={t.name} />
+                      <img src={cldImage(t.image?.url, 240)} alt={t.name} loading="lazy" />
                       <h3 className="font-bold text-blue-800 mt-2">{t.name}</h3>
                       <p>{t.designation}</p>
                       <p className="text-gray-500">{t.department}</p>
@@ -171,7 +172,7 @@ export default function OurTeamPage() {
                 <div className="tree-level">
                   {tree.staffPc.map((pc) => (
                     <div key={pc._id} className="node">
-                      <img src={pc.image?.url} alt={pc.name} />
+                      <img src={cldImage(pc.image?.url, 240)} alt={pc.name} loading="lazy" />
                       <h3 className="font-semibold text-blue-800 mt-2">{pc.name}</h3>
                       <p>{pc.designation}</p>
                       <p className="text-gray-500">{pc.department}</p>
@@ -187,7 +188,7 @@ export default function OurTeamPage() {
               <div className="tree-level">
                 {tree.spc.map((s) => (
                   <div key={s._id} className="node">
-                    <img src={s.image?.url} alt={s.name} />
+                    <img src={cldImage(s.image?.url, 240)} alt={s.name} loading="lazy" />
                     <h3 className="font-semibold text-blue-800 mt-2">{s.name}</h3>
                     <p>{s.designation}</p>
                     <p className="text-gray-500">{s.department}</p>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { cldImage, compressImage } from "../../../lib/images";
 
 export default function AdminGallery() {
   const [photos, setPhotos] = useState([]);
@@ -39,7 +40,7 @@ export default function AdminGallery() {
 
     const data = new FormData();
     data.append("title", formData.title);
-    if (image) data.append("image", image);
+    if (image) data.append("image", await compressImage(image));
 
     try {
       setLoading(true);
@@ -165,7 +166,9 @@ export default function AdminGallery() {
             className="bg-white shadow rounded-xl p-3 text-center hover:scale-105 transition"
           >
             <img
-              src={photo.image.url}
+              src={cldImage(photo.image?.url, 400)}
+              alt={photo.title}
+              loading="lazy"
               className="w-full h-40 object-cover rounded-md"
             />
             <p className="font-semibold mt-2">{photo.title}</p>

@@ -17,6 +17,7 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { cldImage, compressImage } from "../../../lib/images";
 
 export default function AdminHomeHeroPage() {
   const [images, setImages] = useState([]);
@@ -56,7 +57,7 @@ export default function AdminHomeHeroPage() {
     if (!file) return toast.error("Select an image first");
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("image", await compressImage(file));
 
     try {
       setLoading(true);
@@ -216,7 +217,7 @@ function SortableItem({ img, handleDelete, deleting }) {
       }`}
     >
       <img
-        src={img.image?.url}
+        src={cldImage(img.image?.url, 600)}
         alt="Homepage hero"
         className="w-full h-48 object-cover"
       />

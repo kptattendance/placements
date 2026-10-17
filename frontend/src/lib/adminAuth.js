@@ -11,6 +11,11 @@ axios.interceptors.request.use(async (config) => {
   if (isOurApi && typeof window !== "undefined") {
     const token = await window.Clerk?.session?.getToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
+
+    // Admins must always see the latest data, never a cached copy
+    if ((config.method || "get").toLowerCase() === "get") {
+      config.params = { ...config.params, _t: Date.now() };
+    }
   }
 
   return config;

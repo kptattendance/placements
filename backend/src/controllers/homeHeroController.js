@@ -1,5 +1,5 @@
 import HomeHero from "../models/homeHeroModel.js";
-import cloudinary from "../config/cloudinary.js";
+import { deleteImage } from "../utils/deleteImage.js";
 
 // ✅ Upload hero image
 export const uploadHeroImage = async (req, res) => {
@@ -44,13 +44,7 @@ export const deleteHeroImage = async (req, res) => {
       return res.status(404).json({ message: "Image not found" });
     }
 
-    if (image.image?.public_id) {
-      try {
-        await cloudinary.uploader.destroy(image.image.public_id);
-      } catch (err) {
-        console.log("Cloudinary delete failed:", err);
-      }
-    }
+    await deleteImage(image.image?.public_id);
 
     await image.deleteOne();
     res.status(200).json({ message: "Hero image deleted successfully" });

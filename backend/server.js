@@ -75,6 +75,18 @@ app.get("/", (req, res) => {
   res.send("KPT Placement API Running ✅");
 });
 
+// ---------------------- CACHING ----------------------
+// Public data changes rarely, so let the CDN keep it for a minute.
+// Admin requests (they carry a login token) always get fresh data.
+app.use("/api", (req, res, next) => {
+  if (req.method === "GET" && !req.headers.authorization) {
+    res.set("Cache-Control", "public, s-maxage=60, stale-while-revalidate=300");
+  } else {
+    res.set("Cache-Control", "no-store");
+  }
+  next();
+});
+
 // ---------------------- ADMIN PROTECTION ----------------------
 // Website content: anyone can read it, only the placement coordinator
 // can add, edit or delete it

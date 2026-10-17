@@ -42,7 +42,10 @@ const storage = new CloudinaryStorage({
   folder: "kpt_placements",
   resource_type: "image",
   allowed_formats: ["jpg", "jpeg", "png", "webp"],
-  transformation: [{ quality: "auto" }],
+  // Shrink big phone photos (often 4000px, several MB) when they are stored
+  transformation: [
+    { width: 1600, height: 1600, crop: "limit", quality: "auto" },
+  ],
 });
 
 export default storage;
