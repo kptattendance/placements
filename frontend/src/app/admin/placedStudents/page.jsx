@@ -14,6 +14,13 @@ import {
 } from "@mui/material";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import { FaUpload } from "react-icons/fa";
+import {
+  BRANCH_CODES,
+  branchCode,
+  branchLabel,
+  companyOptions,
+  cityOptions,
+} from "../../../lib/filterOptions";
 
 export default function PlacedStudentsManager() {
   const [students, setStudents] = useState([]);
@@ -53,6 +60,11 @@ export default function PlacedStudentsManager() {
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  // Existing names, suggested while typing so the same company or
+  // place is not entered with a new spelling
+  const companySuggestions = companyOptions(students.map((s) => s.companyName));
+  const locationSuggestions = cityOptions(students.map((s) => s.location));
 
   // Search Filter
   const filteredStudents = students.filter((s) => {
@@ -138,7 +150,7 @@ export default function PlacedStudentsManager() {
     setFormData({
       name: student.name,
       registerNumber: student.registerNumber,
-      branch: student.branch,
+      branch: branchCode(student.branch),
       yearOfPassing: student.yearOfPassing,
       companyName: student.companyName,
       location: student.location,
@@ -207,7 +219,31 @@ export default function PlacedStudentsManager() {
                       required={field.name !== "designation"}
                       variant="outlined"
                       size="small"
-                    />
+                      select={field.name === "branch"}
+                      SelectProps={{ native: true }}
+                      InputLabelProps={
+                        field.name === "branch" ? { shrink: true } : undefined
+                      }
+                      inputProps={{
+                        list:
+                          field.name === "companyName"
+                            ? "company-suggestions"
+                            : field.name === "location"
+                              ? "location-suggestions"
+                              : undefined,
+                      }}
+                    >
+                      {field.name === "branch" && (
+                        <>
+                          <option value="">Select branch</option>
+                          {BRANCH_CODES.map((code) => (
+                            <option key={code} value={code}>
+                              {branchLabel(code)}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </TextField>
                   </Grid>
                 ))}
               </Grid>
@@ -252,6 +288,17 @@ export default function PlacedStudentsManager() {
             </Grid>
           </Grid>
         </form>
+
+        <datalist id="company-suggestions">
+          {companySuggestions.map((o) => (
+            <option key={o.value} value={o.label} />
+          ))}
+        </datalist>
+        <datalist id="location-suggestions">
+          {locationSuggestions.map((o) => (
+            <option key={o.value} value={o.label} />
+          ))}
+        </datalist>
       </Card>
 
       {/* 🔍 Search */}

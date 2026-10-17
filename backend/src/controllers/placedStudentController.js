@@ -44,7 +44,7 @@ export const createPlacedStudent = async (req, res) => {
 // ✅ Get all students
 export const getAllPlacedStudents = async (req, res) => {
   try {
-    const students = await PlacedStudent.find().sort({ createdAt: -1 });
+    const students = await PlacedStudent.find().sort({ yearOfPassing: -1, createdAt: -1 }); // latest year first
     res.status(200).json(students);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch students" });

@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import {
+  branchCode,
+  branchOptions,
+  cityOf,
+  cityOptions,
+  companyKey,
+  companyOptions,
+} from "../../lib/filterOptions";
 
 export default function PlacedStudents() {
   const [students, setStudents] = useState([]);
@@ -45,8 +53,15 @@ export default function PlacedStudents() {
       try {
         const res = await axios.get(API_URL);
 
-        setStudents(res.data);
-        setFiltered(res.data);
+        // Latest passing year first; newest entries first within a year
+        const sorted = [...(res.data || [])].sort(
+          (a, b) =>
+            (b.yearOfPassing || 0) - (a.yearOfPassing || 0) ||
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setStudents(sorted);
+        setFiltered(sorted);
       } catch (error) {
         console.error("Error fetching placed students:", error);
       } finally {
@@ -68,20 +83,20 @@ export default function PlacedStudents() {
     }
 
     if (filters.branch) {
-      filteredData = filteredData.filter((s) =>
-        s.branch?.toLowerCase().includes(filters.branch.toLowerCase()),
+      filteredData = filteredData.filter(
+        (s) => branchCode(s.branch) === filters.branch,
       );
     }
 
     if (filters.company) {
-      filteredData = filteredData.filter((s) =>
-        s.companyName?.toLowerCase().includes(filters.company.toLowerCase()),
+      filteredData = filteredData.filter(
+        (s) => companyKey(s.companyName) === filters.company,
       );
     }
 
     if (filters.location) {
-      filteredData = filteredData.filter((s) =>
-        s.location?.toLowerCase().includes(filters.location.toLowerCase()),
+      filteredData = filteredData.filter(
+        (s) => cityOf(s.location) === filters.location,
       );
     }
 
@@ -92,6 +107,16 @@ export default function PlacedStudents() {
   const years = [...new Set(students.map((s) => s.yearOfPassing))]
     .filter(Boolean)
     .sort((a, b) => b - a);
+
+  // ✅ Dropdown choices, built from the students' data
+  const options = useMemo(
+    () => ({
+      branch: branchOptions(students.map((s) => s.branch)),
+      company: companyOptions(students.map((s) => s.companyName)),
+      location: cityOptions(students.map((s) => s.location)),
+    }),
+    [students],
+  );
 
   // ✅ Handle Filter Change
   const handleChange = (field, value) => {
@@ -120,7 +145,8 @@ export default function PlacedStudents() {
         <select
           value={filters.year}
           onChange={(e) => handleChange("year", e.target.value)}
-          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+          aria-label="All Years"
+          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
         >
           <option value="">All Years</option>
 
@@ -131,29 +157,47 @@ export default function PlacedStudents() {
           ))}
         </select>
 
-        <input
-          type="text"
-          placeholder="Filter by Branch"
+        <select
           value={filters.branch}
           onChange={(e) => handleChange("branch", e.target.value)}
-          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        />
+          aria-label="All Branches"
+          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+        >
+          <option value="">All Branches</option>
+          {options.branch.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
 
-        <input
-          type="text"
-          placeholder="Filter by Company"
+        <select
           value={filters.company}
           onChange={(e) => handleChange("company", e.target.value)}
-          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        />
+          aria-label="All Companies"
+          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+        >
+          <option value="">All Companies</option>
+          {options.company.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
 
-        <input
-          type="text"
-          placeholder="Filter by Location"
+        <select
           value={filters.location}
           onChange={(e) => handleChange("location", e.target.value)}
-          className="w-full min-w-0 sm:w-auto bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        />
+          aria-label="All Locations"
+          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
+        >
+          <option value="">All Locations</option>
+          {options.location.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
 
         <button
           onClick={() =>

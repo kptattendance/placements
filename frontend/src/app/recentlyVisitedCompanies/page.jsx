@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   MapPin,
@@ -11,6 +11,15 @@ import {
   Layers,
   X,
 } from "lucide-react";
+
+import {
+  branchCode,
+  branchOptions,
+  cityOf,
+  cityOptions,
+  companyKey,
+  companyOptions,
+} from "../../lib/filterOptions";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -45,27 +54,30 @@ export default function RecentlyVisitedCompanies() {
     return list.filter((c) => {
       if (
         filters.branch &&
-        !c.branchList.some((b) =>
-          b.toLowerCase().includes(filters.branch.toLowerCase())
-        )
+        !(c.branchList || []).some((b) => branchCode(b) === filters.branch)
       )
         return false;
 
-      if (
-        filters.company &&
-        !c.companyName.toLowerCase().includes(filters.company.toLowerCase())
-      )
+      if (filters.company && companyKey(c.companyName) !== filters.company)
         return false;
 
-      if (
-        filters.location &&
-        !c.location.toLowerCase().includes(filters.location.toLowerCase())
-      )
+      if (filters.location && cityOf(c.location) !== filters.location)
         return false;
 
       return true;
     });
   }
+
+  // Dropdown choices, built from the companies' data
+  const options = useMemo(
+    () => ({
+      branch: branchOptions(companies.flatMap((c) => c.branchList || [])),
+      company: companyOptions(companies.map((c) => c.companyName)),
+      location: cityOptions(companies.map((c) => c.location)),
+    }),
+    [companies]
+  );
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 px-4 py-8 md:p-8">
@@ -75,24 +87,45 @@ export default function RecentlyVisitedCompanies() {
 
       {/* Filters */}
       <div className="grid grid-cols-2 gap-3 text-gray-500 sm:flex sm:flex-wrap sm:justify-center mb-10">
-        <input
-          placeholder="Branch"
+        <select
           value={filters.branch}
           onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
-          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full min-w-0 bg-white sm:w-40"
-        />
-        <input
-          placeholder="Company"
+          aria-label="All Branches"
+          className="border border-blue-300 rounded-md px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-400 w-full min-w-0 sm:w-52 first:col-span-2 sm:first:col-span-1"
+        >
+          <option value="">All Branches</option>
+          {options.branch.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        <select
           value={filters.company}
           onChange={(e) => setFilters({ ...filters, company: e.target.value })}
-          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full min-w-0 bg-white col-span-2 sm:w-52"
-        />
-        <input
-          placeholder="Location"
+          aria-label="All Companies"
+          className="border border-blue-300 rounded-md px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-400 w-full min-w-0 sm:w-52 first:col-span-2 sm:first:col-span-1"
+        >
+          <option value="">All Companies</option>
+          {options.company.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        <select
           value={filters.location}
           onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-          className="border border-blue-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-400 w-full min-w-0 bg-white sm:w-40"
-        />
+          aria-label="All Locations"
+          className="border border-blue-300 rounded-md px-3 py-2 text-gray-700 bg-white focus:ring-2 focus:ring-blue-400 w-full min-w-0 sm:w-52 first:col-span-2 sm:first:col-span-1"
+        >
+          <option value="">All Locations</option>
+          {options.location.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
         <button
           onClick={() =>
             setFilters({ branch: "", company: "", location: "" })

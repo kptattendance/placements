@@ -1,13 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 
+import {
+  branchCode,
+  branchOptions,
+  cityOf,
+  cityOptions,
+  companyKey,
+  companyOptions,
+  BRANCH_CODES,
+} from "../../../lib/filterOptions";
+
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-// 🔥 Branch List
-const BRANCHES = ["CS", "EC", "AT", "CE", "CH", "PO", "SC", "ME", "EEE","CSE","CVIL","BELGUAM ","EE,","CIVIL"];
+// Branch codes shown as checkboxes in the form
+const BRANCHES = BRANCH_CODES;
 
 export default function VisitedCompanyManager() {
   const { user } = useUser();
@@ -61,27 +71,30 @@ export default function VisitedCompanyManager() {
     return list.filter((c) => {
       if (
         filters.branch &&
-        !c.branchList.some((b) =>
-          b.toLowerCase().includes(filters.branch.toLowerCase())
-        )
+        !(c.branchList || []).some((b) => branchCode(b) === filters.branch)
       )
         return false;
 
-      if (
-        filters.company &&
-        !c.companyName.toLowerCase().includes(filters.company.toLowerCase())
-      )
+      if (filters.company && companyKey(c.companyName) !== filters.company)
         return false;
 
-      if (
-        filters.location &&
-        !c.location.toLowerCase().includes(filters.location.toLowerCase())
-      )
+      if (filters.location && cityOf(c.location) !== filters.location)
         return false;
 
       return true;
     });
   }
+
+  // Dropdown choices, built from the companies' data
+  const options = useMemo(
+    () => ({
+      branch: branchOptions(companies.flatMap((c) => c.branchList || [])),
+      company: companyOptions(companies.map((c) => c.companyName)),
+      location: cityOptions(companies.map((c) => c.location)),
+    }),
+    [companies]
+  );
+
 
   function openNewForm() {
     setEditing(null);
@@ -103,10 +116,10 @@ export default function VisitedCompanyManager() {
  function openEdit(company) {
   setEditing(company);
 
-  // 🧼 Clean old stored branches (remove quotes/spaces)
-  const cleanedBranches = (company.branchList || []).map((b) =>
-    String(b).replace(/"/g, "").trim()
-  );
+  // 🧼 Old entries used different spellings (EEE, CIVIL ...) — use the standard codes
+  const cleanedBranches = [
+    ...new Set((company.branchList || []).map(branchCode).filter(Boolean)),
+  ];
 
   setForm({
     companyName: company.companyName,
@@ -186,31 +199,49 @@ export default function VisitedCompanyManager() {
     <div className="p-6 text-gray-600">
 
       {/* FILTERS + ADD */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h2 className="text-2xl font-semibold">Recently Visited Companies</h2>
 
-        <div className="flex gap-2">
-          <input
-            placeholder="Branch"
+        <div className="flex flex-wrap gap-2">
+          <select
             value={filters.branch}
             onChange={(e) => setFilters({ ...filters, branch: e.target.value })}
-            className="border px-2 py-1 rounded"
-          />
-
-          <input
-            placeholder="Company"
+            aria-label="All Branches"
+            className="border px-2 py-1 rounded bg-white max-w-48"
+          >
+            <option value="">All Branches</option>
+            {options.branch.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <select
             value={filters.company}
             onChange={(e) => setFilters({ ...filters, company: e.target.value })}
-            className="border px-2 py-1 rounded"
-          />
-
-          <input
-            placeholder="Location"
+            aria-label="All Companies"
+            className="border px-2 py-1 rounded bg-white max-w-48"
+          >
+            <option value="">All Companies</option>
+            {options.company.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+          <select
             value={filters.location}
             onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-            className="border px-2 py-1 rounded"
-          />
-
+            aria-label="All Locations"
+            className="border px-2 py-1 rounded bg-white max-w-48"
+          >
+            <option value="">All Locations</option>
+            {options.location.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
           <button
             onClick={() => setFilters({ branch: "", company: "", location: "" })}
             className="px-3 py-1 bg-gray-200 rounded"
