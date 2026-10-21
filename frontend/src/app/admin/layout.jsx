@@ -4,9 +4,18 @@ import { useUser, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ToastContainer } from "react-toastify";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import "react-toastify/dist/ReactToastify.css";
 import "../../lib/adminAuth";
 import { ADMIN_LINKS } from "./links";
+
+// Brand colours for the Material UI parts of the admin pages
+const muiTheme = createTheme({
+  palette: {
+    primary: { main: "#8a6d1e" },
+    secondary: { main: "#0c0c0c" },
+  },
+});
 
 const ALLOWED_ROLES = [
   "principal",
@@ -69,6 +78,7 @@ export default function AdminLayout({ children }) {
       : "rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-blue-600";
 
   return (
+    <ThemeProvider theme={muiTheme}>
     <div className="flex min-h-screen flex-col bg-gray-50 md:flex-row">
       {/* One toast container for every admin page */}
       <ToastContainer position="top-right" autoClose={2500} />
@@ -116,5 +126,6 @@ export default function AdminLayout({ children }) {
         {children}
       </main>
     </div>
+    </ThemeProvider>
   );
 }

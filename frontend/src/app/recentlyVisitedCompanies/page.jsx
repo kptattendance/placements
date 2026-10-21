@@ -172,7 +172,7 @@ export default function RecentlyVisitedCompanies() {
 
               {/* Info */}
               <div className="p-5">
-                <h2 className="text-xl font-bold text-blue-900 mb-1 break-words">
+                <h2 className="text-xl font-bold text-blue-900 mb-1 break-words font-[family-name:var(--font-display)]">
                   {c.companyName?.toUpperCase()}
                 </h2>
 
@@ -182,32 +182,32 @@ export default function RecentlyVisitedCompanies() {
                 </div>
 
                 <div className="flex items-center text-gray-600 text-sm mb-2">
-                  <Calendar className="h-4 w-4 mr-1 text-indigo-600" />
+                  <Calendar className="h-4 w-4 mr-1 text-blue-600" />
                   {new Date(c.visitDate).toLocaleDateString()}
                 </div>
 
                 <div className="flex items-center text-gray-600 text-sm mb-2">
-                  <Briefcase className="h-4 w-4 mr-1 text-green-600" />
+                  <Briefcase className="h-4 w-4 mr-1 text-blue-600" />
                   {c.recruitmentType}
                 </div>
 
                 <div className="flex items-center text-gray-600 text-sm mb-2">
-                  <Building2 className="h-4 w-4 mr-1 text-yellow-600" />
+                  <Building2 className="h-4 w-4 mr-1 text-blue-600" />
                   {c.modeOfVisit}
                 </div>
 
                 <div className="flex items-center text-gray-600 text-sm mb-2">
-                  <Layers className="h-4 w-4 mr-1 text-purple-600" />
+                  <Layers className="h-4 w-4 mr-1 text-blue-600" />
                   {c.branchList?.join(", ")}
                 </div>
 
                 <div className="flex items-center text-gray-600 text-sm mb-2">
-                  <Users className="h-4 w-4 mr-1 text-pink-600" />
+                  <Users className="h-4 w-4 mr-1 text-blue-600" />
                   {c.studentsRecruited} Students
                 </div>
 
                 <div className="flex items-center justify-between mt-3">
-                  <span className="text-green-700 font-semibold text-md">
+                  <span className="text-blue-700 font-semibold text-md">
                     💰 {c.packageOffered} LPA
                   </span>
                   <span className="text-xs text-gray-500">
@@ -216,7 +216,7 @@ export default function RecentlyVisitedCompanies() {
                 </div>
               </div>
 
-              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400"></div>
             </div>
           ))}
         </div>

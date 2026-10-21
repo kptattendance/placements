@@ -140,7 +140,7 @@ export default function PlacedStudents() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-sky-50 py-12 px-4 md:px-10">
+    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 py-12 px-4 md:px-10">
       {/* Heading */}
       <h1 className="text-3xl md:text-4xl font-extrabold text-center text-blue-900 mb-8 md:mb-10 drop-shadow-sm">
         🌟 Placed Students
@@ -214,7 +214,7 @@ export default function PlacedStudents() {
               location: "",
             })
           }
-          className="col-span-2 sm:col-span-1 bg-gray-600 text-white px-5 py-2 rounded-md hover:bg-gray-700 transition"
+          className="col-span-2 sm:col-span-1 bg-blue-900 text-blue-100 px-5 py-2 rounded-md hover:bg-blue-700 transition"
         >
           Clear
         </button>
@@ -237,7 +237,7 @@ export default function PlacedStudents() {
             return (
               <div
                 key={s._id}
-                className="relative overflow-hidden rounded-[28px] shadow-2xl border-4 border-[#d4af37] shadow-[0_0_20px_rgba(212,175,55,0.4)] w-full max-w-[360px] mx-auto hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-300"
+                className="relative overflow-hidden rounded-[28px] shadow-2xl border-4 border-[#c9a227] shadow-[0_0_20px_rgba(201,162,39,0.35)] w-full max-w-[360px] mx-auto hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-300"
               >
                 {/* College Background Image */}
                 <img
@@ -253,18 +253,18 @@ export default function PlacedStudents() {
                 <div className="relative z-10 flex flex-col items-center text-center p-4">
                   {/* Heading */}
                   <div className="mb-3">
-                    <h3 className="text-pink-700 text-base font-semibold italic">
+                    <h3 className="text-blue-700 text-base font-semibold italic">
                       🎉 Hearty Congratulations! 🎉
                     </h3>
 
-                    <div className="mt-2 bg-[#0b2c6b] text-white px-5 py-2 rounded-full text-sm font-bold shadow">
+                    <div className="mt-2 bg-[#0c0c0c] text-white px-5 py-2 rounded-full text-sm font-bold shadow">
                       Proud Moment for KPT Family!
                     </div>
                   </div>
 
                   {/* Student Image */}
                   <div className="relative mt-2">
-                    <div className="w-35 h-35 rounded-full border-[6px] border-[#d4af37] p-1 bg-white shadow-xl">
+                    <div className="w-35 h-35 rounded-full border-[6px] border-[#c9a227] p-1 bg-white shadow-xl">
                       <img
                         src={cldImage(s.image?.url, 320) || "/logo.jpg"}
                         alt={s.name}
@@ -275,13 +275,13 @@ export default function PlacedStudents() {
                     </div>
 
                     {/* Year Badge */}
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0b2c6b] text-white text-xs px-2 py-1 rounded-full shadow-lg font-bold">
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0c0c0c] text-white text-xs px-2 py-1 rounded-full shadow-lg font-bold">
                       {s.yearOfPassing}
                     </div>
                   </div>
 
                   {/* Name */}
-                  <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0b2c6b] break-words max-w-full tracking-wide uppercase leading-tight">
+                  <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0c0c0c] break-words max-w-full tracking-wide uppercase leading-tight">
                     {toTitleCase(s.name)}
                   </h2>
 
@@ -296,7 +296,7 @@ export default function PlacedStudents() {
                   {/* Branch */}
                   <p className="mt-1 text-sm text-gray-600">
                     <span className="font-semibold">Branch:</span>{" "}
-                    <span className="text-blue-500 font-bold">
+                    <span className="text-blue-600 font-bold">
                       {branchNames[s.branch?.toUpperCase()] || s.branch}
                     </span>
                   </p>
@@ -304,7 +304,7 @@ export default function PlacedStudents() {
                   {/* Company */}
                   <div className="mt-3 bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-1 shadow-md w-full">
                     {" "}
-                    <div className="text-base font-bold text-[#3b1fa1]">
+                    <div className="text-base font-bold text-[#6b5416]">
                       {toTitleCase(s.companyName)}
                     </div>
                     {s.designation && (
@@ -320,7 +320,7 @@ export default function PlacedStudents() {
                   </div>
 
                   {/* Package */}
-                  <div className="mt-4 bg-gradient-to-r from-yellow-200 to-yellow-300 text-yellow-900 px-6 py-2 rounded-full text-lg font-bold shadow-lg border border-yellow-400">
+                  <div className="mt-4 bg-gradient-to-r from-blue-300 to-blue-400 text-blue-900 px-6 py-2 rounded-full text-lg font-bold shadow-lg border border-blue-500/40">
                     💰 Package: {s.packageOffered} LPA
                   </div>
                 </div>

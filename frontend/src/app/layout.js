@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import LayoutWrapper from "./components/LayoutWrapper";
@@ -8,8 +8,9 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Serif used for page and section titles (see globals.css)
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
@@ -73,7 +74,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html
+        lang="en"
+        className={`${geistSans.variable} ${playfair.variable}`}
+      >
         <head>
           {/* Google Search Console Verification */}
           <meta
@@ -86,7 +90,7 @@ export default function RootLayout({ children }) {
 
           <meta
             name="theme-color"
-            content="#004aad"
+            content="#0c0c0c"
           />
 
           <link
@@ -106,7 +110,7 @@ export default function RootLayout({ children }) {
         </head>
 
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900 min-h-screen`}
+          className={`font-sans antialiased bg-blue-50 text-gray-900 min-h-screen`}
         >
           <LayoutWrapper>
             {children}

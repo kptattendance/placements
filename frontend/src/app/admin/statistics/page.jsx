@@ -13,12 +13,12 @@ import {
 const PROGRAMS = ["AT", "CE", "CH", "CS", "EC", "EE", "ME", "PO"];
 
 const GROUP_HEAD = {
-  strength: "bg-sky-700",
-  passed: "bg-pink-700",
-  placed: "bg-emerald-700",
-  higher: "bg-indigo-700",
-  dropout: "bg-red-700",
-  entrepreneur: "bg-amber-600",
+  strength: "bg-blue-900",
+  passed: "bg-blue-700",
+  placed: "bg-blue-900",
+  higher: "bg-blue-700",
+  dropout: "bg-blue-900",
+  entrepreneur: "bg-blue-700",
 };
 
 const emptyProgram = (program) => {
@@ -225,7 +225,7 @@ export default function PlacementStatisticsManager() {
                     </th>
                   ))}
 
-                  <th colSpan={3} className="bg-purple-700 px-2 py-2 border">
+                  <th colSpan={3} className="bg-blue-400 text-blue-900 px-2 py-2 border">
                     % Placement
                   </th>
                 </tr>
@@ -283,7 +283,7 @@ export default function PlacementStatisticsManager() {
                     {["male", "female", "total"].map((sub) => (
                       <td
                         key={sub}
-                        className="border p-1 bg-purple-50 whitespace-nowrap"
+                        className="border p-1 bg-blue-100 whitespace-nowrap"
                       >
                         {formatPercent(row.percentage[sub])}
                       </td>

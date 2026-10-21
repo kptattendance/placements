@@ -170,7 +170,7 @@ export default function PlacedStudentsManager() {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(to right, #e3f2fd, #ffffff)",
+        background: "linear-gradient(to right, #f5f0e6, #ffffff)",
         py: 6,
         px: 2,
       }}
@@ -267,7 +267,7 @@ export default function PlacedStudentsManager() {
                   height: 120,
                   mb: 2,
                   boxShadow: 3,
-                  border: "2px solid #1976d2",
+                  border: "2px solid #8a6d1e",
                 }}
               />
               <label className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition mb-3">
@@ -367,7 +367,7 @@ export default function PlacedStudentsManager() {
                       sx={{
                         width: 45,
                         height: 45,
-                        border: "2px solid #90caf9",
+                        border: "2px solid #dfc77f",
                         mx: "auto",
                       }}
                     />

@@ -17,14 +17,16 @@ import {
 } from "../../lib/placementStats";
 
 // Header colour + cell tint for each column group
+const DARK = { head: "bg-blue-900", cell: "bg-blue-50", total: "bg-blue-200" };
+const BRONZE = { head: "bg-blue-700", cell: "bg-white", total: "bg-blue-100" };
 const GROUP_STYLES = {
-  strength: { head: "bg-sky-700", cell: "bg-sky-50", total: "bg-sky-100" },
-  passed: { head: "bg-pink-700", cell: "bg-pink-50", total: "bg-pink-100" },
-  placed: { head: "bg-emerald-700", cell: "bg-emerald-50", total: "bg-emerald-100" },
-  higher: { head: "bg-indigo-700", cell: "bg-indigo-50", total: "bg-indigo-100" },
-  dropout: { head: "bg-red-700", cell: "bg-red-50", total: "bg-red-100" },
-  entrepreneur: { head: "bg-amber-600", cell: "bg-amber-50", total: "bg-amber-100" },
-  percentage: { head: "bg-purple-700", cell: "bg-purple-50", total: "bg-purple-100" },
+  strength: DARK,
+  passed: BRONZE,
+  placed: DARK,
+  higher: BRONZE,
+  dropout: DARK,
+  entrepreneur: BRONZE,
+  percentage: { head: "bg-blue-400 text-blue-900!", cell: "bg-blue-100", total: "bg-blue-300" },
 };
 
 const SUB_COLUMNS = ["male", "female", "total"];

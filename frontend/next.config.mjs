@@ -23,6 +23,7 @@ const nextConfig = {
   compiler: { emotion: true },
 
   images: {
+    qualities: [75, 85],
     remotePatterns: [
       {
         protocol: "https",

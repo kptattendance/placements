@@ -89,7 +89,7 @@ export default function OurTeamPage() {
   height: 90px;
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid #1e4db7;
+  border: 3px solid #c9a227;
   margin: 0 auto;
 }
 
@@ -103,7 +103,7 @@ export default function OurTeamPage() {
 .line-down {
   width: 2px;
   height: 18px;
-  background: #1e4db7;
+  background: #c9a227;
   margin: 0 auto;
 }
 

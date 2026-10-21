@@ -3,8 +3,8 @@
   "short_name": "KPT TPO",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#004aad",
+  "background_color": "#f5f0e6",
+  "theme_color": "#0c0c0c",
   "description": "Training & Placement Cell – Karnataka Government Polytechnic, Mangalore.",
   "icons": [
     {

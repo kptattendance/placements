@@ -93,7 +93,7 @@ export default function GalleryPage() {
 
             <button
               onClick={() => setSelected(null)}
-              className="absolute top-4 right-4 bg-blue-800 text-white px-3 py-1 rounded-full shadow hover:bg-red-600 transition"
+              className="absolute top-4 right-4 bg-blue-900 text-blue-100 px-3 py-1 rounded-full shadow hover:bg-blue-600 transition"
             >
               ✕
             </button>

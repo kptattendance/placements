@@ -102,6 +102,15 @@ export default function Home() {
             BACKGROUND IMAGES
         ================================================= */}
         {heroImages.map((img, index) => {
+          // Only the current slide, the one fading out and the next one
+          // are loaded — not every slide at once
+          const total = heroImages.length;
+          const isNear =
+            index === current ||
+            index === (current + 1) % total ||
+            index === (current - 1 + total) % total;
+          if (!isNear) return null;
+
           const imageUrl =
             img?.image?.url || FALLBACK_IMAGE;
 
@@ -133,7 +142,7 @@ export default function Home() {
         {/* =================================================
             GRADIENT OVERLAY
         ================================================= */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/70 via-blue-800/50 to-blue-900/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/80 via-blue-900/55 to-blue-900/85" />
 
         {/* =================================================
             HERO CONTENT
@@ -157,31 +166,31 @@ export default function Home() {
             {[
               {
                 icon: (
-                  <Users className="h-8 w-8 text-blue-200 mb-2" />
+                  <Users className="h-8 w-8 text-blue-400 mb-2" />
                 ),
                 label: "1500+ Students",
               },
               {
                 icon: (
-                  <Building2 className="h-8 w-8 text-blue-200 mb-2" />
+                  <Building2 className="h-8 w-8 text-blue-400 mb-2" />
                 ),
                 label: "150+ Recruiters",
               },
               {
                 icon: (
-                  <GraduationCap className="h-8 w-8 text-blue-200 mb-2" />
+                  <GraduationCap className="h-8 w-8 text-blue-400 mb-2" />
                 ),
                 label: "8 Departments",
               },
               {
                 icon: (
-                  <Briefcase className="h-8 w-8 text-blue-200 mb-2" />
+                  <Briefcase className="h-8 w-8 text-blue-400 mb-2" />
                 ),
                 label: "40+ Industry Visits",
               },
               {
                 icon: (
-                  <GraduationCap className="h-8 w-8 text-blue-200 mb-2" />
+                  <GraduationCap className="h-8 w-8 text-blue-400 mb-2" />
                 ),
                 label: "20+ Workshops",
               },
@@ -203,14 +212,14 @@ export default function Home() {
 
             <Link
               href="/statistics"
-              className="bg-white text-blue-800 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition"
+              className="bg-blue-400 text-blue-900 px-6 py-2.5 rounded-full font-semibold shadow-lg hover:bg-blue-300 transition"
             >
               View Placement Statistics
             </Link>
 
             <Link
               href="/studentsPlaced"
-              className="border border-white px-6 py-2 rounded-lg hover:bg-white hover:text-blue-800 transition"
+              className="border border-blue-300/70 text-blue-100 px-6 py-2.5 rounded-full hover:bg-blue-100 hover:text-blue-900 transition"
             >
               Students Placed
             </Link>
