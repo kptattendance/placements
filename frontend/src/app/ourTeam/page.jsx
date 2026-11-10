@@ -109,14 +109,10 @@ export default function OurTeamPage() {
           <p className="text-center text-gray-500 py-10">No team members added yet.</p>
         ) : (
           <div className="space-y-5">
-            {/* Leadership: bigger cards in one row */}
+            {/* Leadership: Principal → Training & Placement Officer → Coordinators */}
             {groups.leadership.length > 0 && (
               <Section title="Leadership" count={groups.leadership.length}>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {groups.leadership.map((m) => (
-                    <LeaderCard key={m._id} member={m} onOpen={setSelected} />
-                  ))}
-                </div>
+                <Leadership members={groups.leadership} onOpen={setSelected} />
               </Section>
             )}
 
@@ -163,13 +159,15 @@ function Section({ title, count, children }) {
   );
 }
 
-function Photo({ member, size, onOpen, width }) {
+function Photo({ member, size, onOpen, width, dark = false }) {
   return (
     <button
       type="button"
       onClick={() => onOpen(member)}
       aria-label={`Enlarge photo of ${member.name}`}
-      className="shrink-0 rounded-full ring-2 ring-blue-400 ring-offset-2 ring-offset-white transition hover:scale-105 focus-visible:outline-none focus-visible:ring-blue-600"
+      className={`shrink-0 rounded-full ring-2 ring-blue-400 ring-offset-2 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-blue-600 ${
+        dark ? "ring-offset-blue-900" : "ring-offset-white"
+      }`}
     >
       <img
         src={photoOf(member, width)}
@@ -182,17 +180,89 @@ function Photo({ member, size, onOpen, width }) {
   );
 }
 
-function LeaderCard({ member, onOpen }) {
+const hasDepartment = (m) => m.department && m.department !== "--";
+
+function Leadership({ members, onOpen }) {
+  const d = (m) => (m.designation || "").trim().toLowerCase();
+  const principal = members.filter((m) => d(m) === "principal");
+  const officer = members.filter((m) =>
+    d(m).includes("training & placement officer")
+  );
+  const coordinators = members.filter(
+    (m) => !principal.includes(m) && !officer.includes(m)
+  );
+
+  const levels = [
+    { key: "principal", people: principal, featured: true },
+    { key: "officer", people: officer },
+    { key: "coordinators", people: coordinators },
+  ].filter((l) => l.people.length > 0);
+
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-blue-200 bg-white px-3 py-4 text-center shadow-sm transition hover:shadow-md">
-      <Photo member={member} onOpen={onOpen} width={240} size="h-20 w-20 sm:h-24 sm:w-24" />
-      <h3 className="mt-3 font-semibold text-gray-900 leading-tight">{member.name}</h3>
-      <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
-        {member.designation}
-      </p>
-      {member.department && member.department !== "--" && (
-        <p className="mt-0.5 text-xs text-gray-500">{member.department}</p>
-      )}
+    <div className="flex flex-col items-center">
+      {levels.map((level, i) => (
+        <div key={level.key} className="flex w-full flex-col items-center">
+          {/* thin gold line joining the levels */}
+          {i > 0 && <div className="h-4 w-0.5 bg-blue-400" />}
+          <div
+            className={`grid w-full gap-3 ${
+              level.people.length > 1
+                ? "max-w-3xl grid-cols-1 sm:grid-cols-2"
+                : "max-w-md grid-cols-1"
+            }`}
+          >
+            {level.people.map((m) => (
+              <LeaderCard
+                key={m._id}
+                member={m}
+                onOpen={onOpen}
+                featured={level.featured}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LeaderCard({ member, onOpen, featured = false }) {
+  return (
+    <div
+      className={`flex items-center gap-4 rounded-2xl p-4 shadow-sm transition hover:shadow-md ${
+        featured
+          ? "bg-blue-900 text-blue-100 border-2 border-blue-400"
+          : "bg-white border border-blue-200 border-l-4 border-l-blue-400"
+      }`}
+    >
+      <Photo
+        member={member}
+        onOpen={onOpen}
+        width={240}
+        dark={featured}
+        size={featured ? "h-20 w-20 sm:h-24 sm:w-24" : "h-16 w-16 sm:h-20 sm:w-20"}
+      />
+      <div className="min-w-0">
+        <h3
+          className={`font-semibold leading-tight break-words ${
+            featured ? "text-lg text-white" : "text-gray-900"
+          }`}
+        >
+          {member.name}
+        </h3>
+        <p
+          className={`mt-1 text-xs font-semibold uppercase tracking-wide ${
+            featured ? "text-blue-400" : "text-blue-700"
+          }`}
+        >
+          {member.designation}
+        </p>
+        {hasDepartment(member) && (
+          <p className={`mt-0.5 text-xs ${featured ? "text-blue-100/80" : "text-gray-500"}`}>
+            {member.department}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
