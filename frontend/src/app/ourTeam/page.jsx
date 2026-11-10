@@ -159,15 +159,13 @@ function Section({ title, count, children }) {
   );
 }
 
-function Photo({ member, size, onOpen, width, dark = false }) {
+function Photo({ member, size, onOpen, width }) {
   return (
     <button
       type="button"
       onClick={() => onOpen(member)}
       aria-label={`Enlarge photo of ${member.name}`}
-      className={`shrink-0 rounded-full ring-2 ring-blue-400 ring-offset-2 transition hover:scale-105 focus-visible:outline-none focus-visible:ring-blue-600 ${
-        dark ? "ring-offset-blue-900" : "ring-offset-white"
-      }`}
+      className="shrink-0 rounded-full ring-2 ring-blue-400 ring-offset-2 ring-offset-white transition hover:scale-105 focus-visible:outline-none focus-visible:ring-blue-600"
     >
       <img
         src={photoOf(member, width)}
@@ -182,6 +180,8 @@ function Photo({ member, size, onOpen, width, dark = false }) {
 
 const hasDepartment = (m) => m.department && m.department !== "--";
 
+// Principal on top; Training & Placement Officer and Placement Coordinators
+// together in one row below, joined like an organisation chart
 function Leadership({ members, onOpen }) {
   const d = (m) => (m.designation || "").trim().toLowerCase();
   const principal = members.filter((m) => d(m) === "principal");
@@ -192,76 +192,110 @@ function Leadership({ members, onOpen }) {
     (m) => !principal.includes(m) && !officer.includes(m)
   );
 
-  const levels = [
-    { key: "principal", people: principal, featured: true },
-    { key: "officer", people: officer },
-    { key: "coordinators", people: coordinators },
-  ].filter((l) => l.people.length > 0);
+  // Officer sits in the middle of the row on larger screens
+  const row = [...officer, ...coordinators];
+  const orderOf = (m) => {
+    if (officer.length === 0 || coordinators.length < 2) return "";
+    if (officer.includes(m)) return "sm:order-2";
+    return m === coordinators[0] ? "sm:order-1" : "sm:order-3";
+  };
+
+  const cols =
+    row.length >= 3
+      ? "sm:grid-cols-3 max-w-5xl"
+      : row.length === 2
+        ? "sm:grid-cols-2 max-w-3xl"
+        : "max-w-sm";
 
   return (
     <div className="flex flex-col items-center">
-      {levels.map((level, i) => (
-        <div key={level.key} className="flex w-full flex-col items-center">
-          {/* thin gold line joining the levels */}
-          {i > 0 && <div className="h-4 w-0.5 bg-blue-400" />}
-          <div
-            className={`grid w-full gap-3 ${
-              level.people.length > 1
-                ? "max-w-3xl grid-cols-1 sm:grid-cols-2"
-                : "max-w-md grid-cols-1"
-            }`}
-          >
-            {level.people.map((m) => (
-              <LeaderCard
-                key={m._id}
-                member={m}
-                onOpen={onOpen}
-                featured={level.featured}
+      {principal.length > 0 && (
+        <div className="grid w-full max-w-sm gap-3">
+          {principal.map((m) => (
+            <LeaderCard key={m._id} member={m} onOpen={onOpen} featured />
+          ))}
+        </div>
+      )}
+
+      {row.length > 0 && (
+        <>
+          {/* gold line down from the Principal */}
+          {principal.length > 0 && <div className="h-5 w-0.5 bg-blue-400" />}
+
+          <div className={`relative grid w-full grid-cols-1 gap-3 ${cols}`}>
+            {/* gold line across the row (larger screens only) */}
+            {principal.length > 0 && row.length > 1 && (
+              <div
+                className="pointer-events-none absolute -top-0 hidden h-0.5 bg-blue-400 sm:block"
+                style={{
+                  left: `${50 / Math.min(row.length, 3)}%`,
+                  right: `${50 / Math.min(row.length, 3)}%`,
+                }}
               />
+            )}
+
+            {row.map((m) => (
+              <div key={m._id} className={`flex flex-col ${orderOf(m)}`}>
+                {principal.length > 0 && row.length > 1 && (
+                  <div className="mx-auto hidden h-4 w-0.5 bg-blue-400 sm:block" />
+                )}
+                <LeaderCard
+                  member={m}
+                  onOpen={onOpen}
+                  highlight={officer.includes(m)}
+                />
+              </div>
             ))}
           </div>
-        </div>
-      ))}
+        </>
+      )}
     </div>
   );
 }
 
-function LeaderCard({ member, onOpen, featured = false }) {
+function LeaderCard({ member, onOpen, featured = false, highlight = false }) {
   return (
     <div
-      className={`flex items-center gap-4 rounded-2xl p-4 shadow-sm transition hover:shadow-md ${
+      className={`relative flex h-full overflow-hidden rounded-2xl border bg-white px-4 pb-4 pt-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
         featured
-          ? "bg-blue-900 text-blue-100 border-2 border-blue-400"
-          : "bg-white border border-blue-200 border-l-4 border-l-blue-400"
+          ? "flex-col items-center text-center"
+          : "flex-row items-center gap-4 text-left sm:flex-col sm:gap-0 sm:text-center"
+      } ${
+        featured
+          ? "border-blue-400 bg-gradient-to-b from-blue-100 to-white shadow-md"
+          : highlight
+            ? "border-blue-300"
+            : "border-blue-200"
       }`}
     >
+      {/* gold accent strip along the top */}
+      <span
+        className={`absolute inset-x-0 top-0 ${
+          featured || highlight ? "h-1.5 bg-blue-400" : "h-1 bg-blue-300"
+        }`}
+      />
+
       <Photo
         member={member}
         onOpen={onOpen}
         width={240}
-        dark={featured}
-        size={featured ? "h-20 w-20 sm:h-24 sm:w-24" : "h-16 w-16 sm:h-20 sm:w-20"}
+        size={featured ? "h-24 w-24 sm:h-28 sm:w-28" : "h-16 w-16 sm:h-24 sm:w-24"}
       />
-      <div className="min-w-0">
-        <h3
-          className={`font-semibold leading-tight break-words ${
-            featured ? "text-lg text-white" : "text-gray-900"
-          }`}
-        >
-          {member.name}
-        </h3>
-        <p
-          className={`mt-1 text-xs font-semibold uppercase tracking-wide ${
-            featured ? "text-blue-400" : "text-blue-700"
-          }`}
-        >
-          {member.designation}
-        </p>
-        {hasDepartment(member) && (
-          <p className={`mt-0.5 text-xs ${featured ? "text-blue-100/80" : "text-gray-500"}`}>
-            {member.department}
-          </p>
-        )}
+
+      <div className={`min-w-0 ${featured ? "" : "flex flex-col items-start sm:items-center"}`}>
+      <h3
+        className={`${featured ? "mt-3" : "sm:mt-3"} font-semibold leading-tight text-gray-900 break-words ${
+          featured ? "text-lg" : ""
+        }`}
+      >
+        {member.name}
+      </h3>
+      <p className="mt-1 rounded-full bg-blue-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+        {member.designation}
+      </p>
+      {hasDepartment(member) && (
+        <p className="mt-1.5 text-xs text-gray-500">{member.department}</p>
+      )}
       </div>
     </div>
   );
