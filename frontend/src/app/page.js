@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getData } from "../lib/fetchData";
 import {
   Building2,
   Users,
@@ -48,15 +48,10 @@ export default function Home() {
 
     const fetchImages = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/home-hero`, {
-          timeout: 10000,
-        });
+        const data = await getData("/api/home-hero");
 
-        if (
-          Array.isArray(res.data) &&
-          res.data.length > 0
-        ) {
-          setHeroImages(res.data);
+        if (Array.isArray(data) && data.length > 0) {
+          setHeroImages(data);
           setCurrent(0);
         }
       } catch (err) {

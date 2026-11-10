@@ -1,20 +1,21 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import axios from "axios";
+import { getData } from "../../lib/fetchData";
 
 export default function GalleryPage() {
   const [photos, setPhotos] = useState([]);
   const [selected, setSelected] = useState(null); // ⭐ modal selected photo
-  const baseURL = process.env.NEXT_PUBLIC_API_URL;
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/gallery`);
-        setPhotos(res.data);
+        setPhotos((await getData("/api/gallery")) || []);
       } catch (err) {
         console.error("Failed to fetch gallery photos:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPhotos();
@@ -39,7 +40,13 @@ export default function GalleryPage() {
           Explore our events, workshops, and campus moments
         </p>
 
-        {photos.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" aria-label="Loading">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-56 animate-pulse rounded-xl bg-blue-200" />
+            ))}
+          </div>
+        ) : photos.length === 0 ? (
           <p className="text-center text-gray-400">No photos uploaded yet.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

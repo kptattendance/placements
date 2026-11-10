@@ -1,24 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { getData } from "../../lib/fetchData";
 import { cldImage } from "../../lib/images";
 
 export default function OurTeamPage() {
   const [team, setTeam] = useState([]);
-  const baseURL = process.env.NEXT_PUBLIC_API_URL;
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+
+  const fetchTeam = async () => {
+    setLoading(true);
+    setLoadError(false);
+    try {
+      setTeam((await getData("/api/team")) || []);
+    } catch (error) {
+      console.error("Failed to load team:", error);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const res = await axios.get(`${baseURL}/api/team`);
-        setTeam(res.data);
-      } catch (error) {
-        console.error("Failed to load team:", error);
-      }
-    };
     fetchTeam();
-  }, [baseURL]);
+  }, []);
 
   function sortToTree(list) {
     const principal = list.filter(
@@ -127,7 +133,29 @@ export default function OurTeamPage() {
 `}
         </style>
 
-        {team.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-wrap justify-center gap-6 py-6" aria-label="Loading team">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex w-36 flex-col items-center gap-2">
+                <div className="h-24 w-24 animate-pulse rounded-full bg-blue-200" />
+                <div className="h-3 w-24 animate-pulse rounded bg-blue-200" />
+                <div className="h-3 w-16 animate-pulse rounded bg-blue-200" />
+              </div>
+            ))}
+          </div>
+        ) : loadError ? (
+          <p className="text-gray-600">
+            Could not load the team right now. Please{" "}
+            <button
+              type="button"
+              onClick={fetchTeam}
+              className="font-semibold text-blue-700 underline"
+            >
+              try again
+            </button>
+            .
+          </p>
+        ) : team.length === 0 ? (
           <p>No team members added yet.</p>
         ) : (
           <div className="tree">

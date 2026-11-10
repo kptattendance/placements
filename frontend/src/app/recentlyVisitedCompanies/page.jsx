@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { getData } from "../../lib/fetchData";
 import {
   MapPin,
   Calendar,
@@ -27,6 +27,8 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 export default function RecentlyVisitedCompanies() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [bigImageLoaded, setBigImageLoaded] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [filters, setFilters] = useState({
     branch: "",
@@ -40,12 +42,12 @@ export default function RecentlyVisitedCompanies() {
 
   async function fetchCompanies() {
     setLoading(true);
+    setLoadError(false);
     try {
-      const res = await axios.get(`${API}/api/visited-companies`);
-      setCompanies(res.data || []);
+      setCompanies((await getData("/api/visited-companies")) || []);
     } catch (err) {
       console.error(err);
-      alert("Failed to load companies");
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -142,6 +144,18 @@ export default function RecentlyVisitedCompanies() {
         <div className="text-center text-blue-600 font-semibold text-lg">
           Loading companies...
         </div>
+      ) : loadError ? (
+        <div className="text-center text-gray-600 text-lg">
+          Could not load companies right now. Please{" "}
+          <button
+            type="button"
+            onClick={fetchCompanies}
+            className="font-semibold text-blue-700 underline"
+          >
+            try again
+          </button>
+          .
+        </div>
       ) : applyFilters(companies).length === 0 ? (
         <div className="text-center text-gray-500 text-lg">
           No matching companies found.
@@ -156,7 +170,15 @@ export default function RecentlyVisitedCompanies() {
               {/* Image Section */}
               <div
                 className="h-48 w-full overflow-hidden cursor-pointer"
-                onClick={() => setSelectedImage(c.image?.url)}
+                onClick={() => {
+                  if (!c.image?.url) return;
+                  setBigImageLoaded(false);
+                  setSelectedImage(c.image.url);
+                }}
+                // Start downloading the large photo as soon as the pointer is on the card
+                onPointerEnter={() => {
+                  if (c.image?.url) new window.Image().src = cldImage(c.image.url, 1600);
+                }}
               >
                 <img
                   src={
@@ -240,12 +262,23 @@ export default function RecentlyVisitedCompanies() {
               <X className="w-6 h-6" />
             </button>
 
-            {/* Image */}
-            <img
-              src={cldImage(selectedImage, 1600)}
-              alt="Preview"
-              className="w-auto h-auto max-w-[95vw] max-h-[95vh] object-scale-down rounded-lg"
-            />
+            {/* The card photo (already downloaded) shows instantly;
+                the sharp large photo fades in on top when it arrives */}
+            <div className="relative">
+              <img
+                src={cldImage(selectedImage, 640)}
+                alt="Preview"
+                className="w-[95vw] max-w-5xl h-auto max-h-[90vh] object-contain rounded-lg"
+              />
+              <img
+                src={cldImage(selectedImage, 1600)}
+                alt=""
+                onLoad={() => setBigImageLoaded(true)}
+                className={`absolute inset-0 w-full h-full object-contain rounded-lg transition-opacity duration-300 ${
+                  bigImageLoaded ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            </div>
           </div>
         </div>
       )}

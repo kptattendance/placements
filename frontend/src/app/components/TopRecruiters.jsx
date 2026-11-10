@@ -2,23 +2,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import axios from "axios";
+import { getData } from "../../lib/fetchData";
 
 export default function TopRecruiters() {
   const [logos, setLogos] = useState([]);
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || "";
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLogos = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/recruiter-logos`);
-        setLogos(res.data || []);
+        setLogos((await getData("/api/recruiter-logos")) || []);
       } catch (err) {
         console.error("Failed to fetch recruiter logos:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchLogos();
-  }, [baseURL]);
+  }, []);
 
   return (
     <section className="relative py-16 bg-gradient-to-r from-blue-50 via-white to-blue-50 border-t border-gray-200 overflow-hidden">
@@ -34,7 +35,13 @@ export default function TopRecruiters() {
           Trusted by leading industries and organizations
         </p>
 
-        {logos.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center gap-6 overflow-hidden" aria-label="Loading">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-[110px] w-[150px] shrink-0 animate-pulse rounded-md bg-blue-200" />
+            ))}
+          </div>
+        ) : logos.length === 0 ? (
           <p className="text-gray-400">No recruiter logos uploaded yet.</p>
         ) : (
           <div className="overflow-hidden relative">

@@ -1,7 +1,3 @@
-import axios from "axios";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+import { getData } from "../../lib/fetchData";
 
-export const getAllPlacementYears = async () => {
-  const res = await axios.get(`${API_URL}/api/placements`);
-  return res.data;
-};
+export const getAllPlacementYears = () => getData("/api/placements");

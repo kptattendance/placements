@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { getData } from "../../lib/fetchData";
 import {
   branchCode,
   branchOptions,
@@ -23,6 +23,7 @@ export default function PlacedStudents() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   // Show students in batches so the page opens fast
   const PAGE_SIZE = 24;
@@ -39,7 +40,6 @@ export default function PlacedStudents() {
     PO: "Polymer Technology",
   };
 
-  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/placed-students`;
 
   // ✅ Convert to Title Case
   function toTitleCase(str) {
@@ -56,10 +56,10 @@ export default function PlacedStudents() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(API_URL);
+        const data = await getData("/api/placed-students");
 
         // Latest passing year first; newest entries first within a year
-        const sorted = [...(res.data || [])].sort(
+        const sorted = [...(data || [])].sort(
           (a, b) =>
             (b.yearOfPassing || 0) - (a.yearOfPassing || 0) ||
             new Date(b.createdAt) - new Date(a.createdAt)
@@ -69,6 +69,7 @@ export default function PlacedStudents() {
         setFiltered(sorted);
       } catch (error) {
         console.error("Error fetching placed students:", error);
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
@@ -227,7 +228,19 @@ export default function PlacedStudents() {
       </p>
 
       {/* Students Grid */}
-      {filtered.length === 0 ? (
+      {loadError ? (
+        <p className="text-center text-gray-600 py-10">
+          Could not load placed students right now. Please{" "}
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="font-semibold text-blue-700 underline"
+          >
+            try again
+          </button>
+          .
+        </p>
+      ) : filtered.length === 0 ? (
         <p className="text-center text-gray-500 py-10">
           No students match your filters.
         </p>
