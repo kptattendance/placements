@@ -17,7 +17,7 @@ import { cldImage } from "../../lib/images";
 const EMPTY_FILTERS = { year: "", branch: "", company: "", location: "" };
 
 const SELECT_CLASS =
-  "w-full min-w-0 sm:w-48 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none";
+  "w-full min-w-0 sm:w-44 bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none";
 
 // ✅ Convert to Title Case
 function toTitleCase(str) {
@@ -120,76 +120,44 @@ export default function PlacedStudents() {
   ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 py-10 md:py-12 px-3 sm:px-4 md:px-8">
+    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 py-5 md:py-6 px-3 sm:px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Heading */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-blue-900">
-            Placed Students
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Celebrating our students and the companies that chose them
-          </p>
-          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-blue-400" />
-        </div>
+        {/* Title on the left, headline numbers on the right — one compact row */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-blue-900">
+              Placed Students
+            </h1>
+            <p className="text-sm text-gray-600">
+              Celebrating our students and the companies that chose them
+            </p>
+          </div>
 
-        {/* Summary */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-          {[
-            { icon: Users, label: "Students Placed", value: summary.students },
-            { icon: Building2, label: "Companies", value: summary.companies },
-            {
-              icon: Award,
-              label: "Highest Package",
-              value: summary.highest ? formatLPA(summary.highest) : "–",
-            },
-            {
-              icon: TrendingUp,
-              label: "Average Package",
-              value: summary.average ? formatLPA(summary.average) : "–",
-            },
-          ].map(({ icon: Icon, label, value }) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-blue-200 bg-white p-4 shadow-sm"
-            >
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { icon: Users, label: "Students", value: summary.students },
+              { icon: Building2, label: "Companies", value: summary.companies },
+              {
+                icon: Award,
+                label: "Highest",
+                value: summary.highest ? formatLPA(summary.highest) : "–",
+              },
+              {
+                icon: TrendingUp,
+                label: "Average",
+                value: summary.average ? formatLPA(summary.average) : "–",
+              },
+            ].map(({ icon: Icon, label, value }) => (
+              <div
+                key={label}
+                className="flex items-center gap-1.5 rounded-full border border-blue-200 bg-white px-3 py-1.5 text-xs sm:text-sm shadow-sm"
+              >
                 <Icon className="h-4 w-4 text-blue-600" />
-                {label}
+                <span className="text-gray-600">{label}</span>
+                <strong className="text-blue-900">{loading ? "…" : value}</strong>
               </div>
-              <div className="mt-1 text-xl sm:text-2xl font-bold text-blue-900">
-                {loading ? "…" : value}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Filters */}
-        <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-center mb-6 bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-blue-200">
-          {filterSelects.map(([field, all]) => (
-            <select
-              key={field}
-              value={filters[field]}
-              onChange={(e) => handleChange(field, e.target.value)}
-              aria-label={all}
-              className={SELECT_CLASS}
-            >
-              <option value="">{all}</option>
-              {options[field].map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          ))}
-
-          <button
-            type="button"
-            onClick={() => setFilters(EMPTY_FILTERS)}
-            className="col-span-2 sm:col-span-1 bg-blue-900 text-blue-100 text-sm px-5 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Clear
-          </button>
+            ))}
+          </div>
         </div>
 
         {/* Table */}
@@ -207,19 +175,48 @@ export default function PlacedStudents() {
           </p>
         ) : (
           <div className="rounded-2xl border border-blue-200 bg-white shadow-md overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200 bg-blue-50">
-              <p className="text-sm text-gray-600">
+            {/* Filters and count sit in the table's own top bar */}
+            <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between px-3 py-3 border-b border-blue-200 bg-blue-50">
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+                {filterSelects.map(([field, all]) => (
+                  <select
+                    key={field}
+                    value={filters[field]}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                    aria-label={all}
+                    className={SELECT_CLASS}
+                  >
+                    <option value="">{all}</option>
+                    {options[field].map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setFilters(EMPTY_FILTERS)}
+                  className="col-span-2 sm:col-span-1 bg-blue-900 text-blue-100 text-sm px-4 py-1.5 rounded-lg hover:bg-blue-700 transition"
+                >
+                  Clear
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-600 whitespace-nowrap">
                 Showing{" "}
                 <strong className="text-blue-800">{filtered.length}</strong>{" "}
                 {filtered.length === 1 ? "student" : "students"}
-              </p>
-              <p className="hidden sm:block text-xs text-gray-500">
-                Tap a photo to enlarge
+                <span className="hidden sm:inline text-xs text-gray-500">
+                  {" "}
+                  · tap a photo to enlarge
+                </span>
               </p>
             </div>
 
             {/* Only this box scrolls; the column titles stay in place */}
-            <div className="max-h-[70vh] overflow-auto">
+            <div className="max-h-[calc(100vh-15rem)] min-h-[22rem] overflow-auto">
               <table className="w-full text-sm text-left">
                 <thead>
                   <tr className="text-xs uppercase tracking-wider text-blue-100">
@@ -271,12 +268,12 @@ export default function PlacedStudents() {
                             i % 2 ? "bg-blue-50/70" : "bg-white"
                           }`}
                         >
-                          <td className="hidden md:table-cell px-3 py-3 text-center text-gray-400 tabular-nums">
+                          <td className="hidden md:table-cell px-3 py-2 text-center text-gray-400 tabular-nums">
                             {i + 1}
                           </td>
 
                           {/* Student: photo, name, reg no (and branch on phones) */}
-                          <td className="px-3 sm:px-4 py-3">
+                          <td className="px-3 sm:px-4 py-2">
                             <div className="flex items-center gap-3">
                               <button
                                 type="button"
@@ -289,7 +286,7 @@ export default function PlacedStudents() {
                                   alt=""
                                   loading="lazy"
                                   decoding="async"
-                                  className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover bg-blue-100"
+                                  className="h-10 w-10 sm:h-11 sm:w-11 rounded-full object-cover bg-blue-100"
                                 />
                               </button>
                               <div className="min-w-0">
@@ -309,7 +306,7 @@ export default function PlacedStudents() {
                             </div>
                           </td>
 
-                          <td className="hidden md:table-cell px-4 py-3">
+                          <td className="hidden md:table-cell px-4 py-2">
                             <span
                               title={PROGRAM_NAMES[code] || s.branch}
                               className="inline-block rounded-full border border-blue-300 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700"
@@ -319,7 +316,7 @@ export default function PlacedStudents() {
                           </td>
 
                           {/* Company (designation, and location on phones) */}
-                          <td className="px-3 sm:px-4 py-3">
+                          <td className="px-3 sm:px-4 py-2">
                             <div className="font-medium text-gray-900 break-words">
                               {toTitleCase(s.companyName)}
                             </div>
@@ -333,15 +330,15 @@ export default function PlacedStudents() {
                             </div>
                           </td>
 
-                          <td className="hidden lg:table-cell px-4 py-3 text-gray-700">
+                          <td className="hidden lg:table-cell px-4 py-2 text-gray-700">
                             {toTitleCase(s.location)}
                           </td>
 
-                          <td className="hidden md:table-cell px-4 py-3 text-center text-gray-700 tabular-nums">
+                          <td className="hidden md:table-cell px-4 py-2 text-center text-gray-700 tabular-nums">
                             {s.yearOfPassing}
                           </td>
 
-                          <td className="px-3 sm:px-4 py-3 text-right">
+                          <td className="px-3 sm:px-4 py-2 text-right">
                             <span className="inline-block whitespace-nowrap rounded-full bg-blue-400/20 px-2.5 py-1 text-xs sm:text-sm font-bold text-blue-800 tabular-nums">
                               {formatLPA(s.packageOffered)}
                             </span>
