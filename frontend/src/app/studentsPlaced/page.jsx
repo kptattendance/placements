@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { X, Users, Building2, TrendingUp, Award } from "lucide-react";
 import { getData } from "../../lib/fetchData";
 import {
   branchCode,
@@ -10,47 +11,36 @@ import {
   companyKey,
   companyOptions,
 } from "../../lib/filterOptions";
+import { PROGRAM_NAMES } from "../../lib/placementStats";
 import { cldImage } from "../../lib/images";
+
+const EMPTY_FILTERS = { year: "", branch: "", company: "", location: "" };
+
+const SELECT_CLASS =
+  "w-full min-w-0 sm:w-48 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none";
+
+// ✅ Convert to Title Case
+function toTitleCase(str) {
+  if (!str) return "";
+  return str
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+const formatLPA = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) ? `${n.toFixed(2)} LPA` : "–";
+};
 
 export default function PlacedStudents() {
   const [students, setStudents] = useState([]);
-  const [filtered, setFiltered] = useState([]);
-  const [filters, setFilters] = useState({
-    year: "",
-    branch: "",
-    company: "",
-    location: "",
-  });
-
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
-
-  // Show students in batches so the page opens fast
-  const PAGE_SIZE = 24;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-
-  const branchNames = {
-    AT: "Automobile Engineering",
-    CE: "Civil Engineering",
-    CH: "Chemical Engineering",
-    CS: "Computer Science Engineering",
-    EC: "Electronics & Communication Engineering",
-    EE: "Electrical & Electronics Engineering",
-    ME: "Mechanical Engineering",
-    PO: "Polymer Technology",
-  };
-
-
-  // ✅ Convert to Title Case
-  function toTitleCase(str) {
-    if (!str) return "";
-
-    return str
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
+  const [selected, setSelected] = useState(null); // student whose photo is enlarged
 
   // ✅ Fetch Data
   useEffect(() => {
@@ -66,7 +56,6 @@ export default function PlacedStudents() {
         );
 
         setStudents(sorted);
-        setFiltered(sorted);
       } catch (error) {
         console.error("Error fetching placed students:", error);
         setLoadError(true);
@@ -79,281 +68,377 @@ export default function PlacedStudents() {
   }, []);
 
   // ✅ Apply Filters
-  useEffect(() => {
-    let filteredData = students;
-
-    if (filters.year) {
-      filteredData = filteredData.filter(
-        (s) => String(s.yearOfPassing) === String(filters.year),
-      );
-    }
-
-    if (filters.branch) {
-      filteredData = filteredData.filter(
-        (s) => branchCode(s.branch) === filters.branch,
-      );
-    }
-
-    if (filters.company) {
-      filteredData = filteredData.filter(
-        (s) => companyKey(s.companyName) === filters.company,
-      );
-    }
-
-    if (filters.location) {
-      filteredData = filteredData.filter(
-        (s) => cityOf(s.location) === filters.location,
-      );
-    }
-
-    setFiltered(filteredData);
-    setVisibleCount(PAGE_SIZE);
-  }, [filters, students]);
-
-  // ✅ Years that actually have placed students, latest first
-  const years = [...new Set(students.map((s) => s.yearOfPassing))]
-    .filter(Boolean)
-    .sort((a, b) => b - a);
+  const filtered = useMemo(
+    () =>
+      students.filter(
+        (s) =>
+          (!filters.year || String(s.yearOfPassing) === filters.year) &&
+          (!filters.branch || branchCode(s.branch) === filters.branch) &&
+          (!filters.company || companyKey(s.companyName) === filters.company) &&
+          (!filters.location || cityOf(s.location) === filters.location)
+      ),
+    [students, filters]
+  );
 
   // ✅ Dropdown choices, built from the students' data
   const options = useMemo(
     () => ({
+      year: [...new Set(students.map((s) => s.yearOfPassing))]
+        .filter(Boolean)
+        .sort((a, b) => b - a)
+        .map((y) => ({ value: String(y), label: String(y) })),
       branch: branchOptions(students.map((s) => s.branch)),
       company: companyOptions(students.map((s) => s.companyName)),
       location: cityOptions(students.map((s) => s.location)),
     }),
-    [students],
+    [students]
   );
 
-  // ✅ Handle Filter Change
-  const handleChange = (field, value) => {
-    setFilters((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // ✅ Headline numbers for what is currently shown
+  const summary = useMemo(() => {
+    const packages = filtered
+      .map((s) => Number(s.packageOffered))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    return {
+      students: filtered.length,
+      companies: new Set(filtered.map((s) => companyKey(s.companyName))).size,
+      highest: packages.length ? Math.max(...packages) : null,
+      average: packages.length
+        ? packages.reduce((a, b) => a + b, 0) / packages.length
+        : null,
+    };
+  }, [filtered]);
 
-  // ✅ Loading State
-  if (loading) {
-    return (
-      <p className="text-center py-10 text-gray-500 text-lg">Loading... </p>
-    );
-  }
+  const handleChange = (field, value) =>
+    setFilters((prev) => ({ ...prev, [field]: value }));
+
+  const filterSelects = [
+    ["year", "All Years"],
+    ["branch", "All Branches"],
+    ["company", "All Companies"],
+    ["location", "All Locations"],
+  ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 py-12 px-4 md:px-10">
-      {/* Heading */}
-      <h1 className="text-3xl md:text-4xl font-extrabold text-center text-blue-900 mb-8 md:mb-10 drop-shadow-sm">
-        🌟 Placed Students
-      </h1>
+    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 py-10 md:py-12 px-3 sm:px-4 md:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Heading */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-900">
+            Placed Students
+          </h1>
+          <p className="mt-2 text-gray-600">
+            Celebrating our students and the companies that chose them
+          </p>
+          <div className="mx-auto mt-4 h-1 w-20 rounded-full bg-blue-400" />
+        </div>
 
-      {/* Filters */}
-      <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-4 mb-10 bg-white/70 backdrop-blur-md p-4 rounded-xl shadow-lg border border-blue-100">
-        <select
-          value={filters.year}
-          onChange={(e) => handleChange("year", e.target.value)}
-          aria-label="All Years"
-          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        >
-          <option value="">All Years</option>
-
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
+        {/* Summary */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          {[
+            { icon: Users, label: "Students Placed", value: summary.students },
+            { icon: Building2, label: "Companies", value: summary.companies },
+            {
+              icon: Award,
+              label: "Highest Package",
+              value: summary.highest ? formatLPA(summary.highest) : "–",
+            },
+            {
+              icon: TrendingUp,
+              label: "Average Package",
+              value: summary.average ? formatLPA(summary.average) : "–",
+            },
+          ].map(({ icon: Icon, label, value }) => (
+            <div
+              key={label}
+              className="rounded-2xl border border-blue-200 bg-white p-4 shadow-sm"
+            >
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                <Icon className="h-4 w-4 text-blue-600" />
+                {label}
+              </div>
+              <div className="mt-1 text-xl sm:text-2xl font-bold text-blue-900">
+                {loading ? "…" : value}
+              </div>
+            </div>
           ))}
-        </select>
+        </div>
 
-        <select
-          value={filters.branch}
-          onChange={(e) => handleChange("branch", e.target.value)}
-          aria-label="All Branches"
-          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        >
-          <option value="">All Branches</option>
-          {options.branch.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
+        {/* Filters */}
+        <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-center mb-6 bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-blue-200">
+          {filterSelects.map(([field, all]) => (
+            <select
+              key={field}
+              value={filters[field]}
+              onChange={(e) => handleChange(field, e.target.value)}
+              aria-label={all}
+              className={SELECT_CLASS}
+            >
+              <option value="">{all}</option>
+              {options[field].map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
           ))}
-        </select>
 
-        <select
-          value={filters.company}
-          onChange={(e) => handleChange("company", e.target.value)}
-          aria-label="All Companies"
-          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        >
-          <option value="">All Companies</option>
-          {options.company.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+          <button
+            type="button"
+            onClick={() => setFilters(EMPTY_FILTERS)}
+            className="col-span-2 sm:col-span-1 bg-blue-900 text-blue-100 text-sm px-5 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Clear
+          </button>
+        </div>
 
-        <select
-          value={filters.location}
-          onChange={(e) => handleChange("location", e.target.value)}
-          aria-label="All Locations"
-          className="w-full min-w-0 sm:w-52 bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
-        >
-          <option value="">All Locations</option>
-          {options.location.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        {/* Table */}
+        {loadError ? (
+          <p className="text-center text-gray-600 py-10">
+            Could not load placed students right now. Please{" "}
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="font-semibold text-blue-700 underline"
+            >
+              try again
+            </button>
+            .
+          </p>
+        ) : (
+          <div className="rounded-2xl border border-blue-200 bg-white shadow-md overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200 bg-blue-50">
+              <p className="text-sm text-gray-600">
+                Showing{" "}
+                <strong className="text-blue-800">{filtered.length}</strong>{" "}
+                {filtered.length === 1 ? "student" : "students"}
+              </p>
+              <p className="hidden sm:block text-xs text-gray-500">
+                Tap a photo to enlarge
+              </p>
+            </div>
 
-        <button
-          onClick={() =>
-            setFilters({
-              year: "",
-              branch: "",
-              company: "",
-              location: "",
-            })
-          }
-          className="col-span-2 sm:col-span-1 bg-blue-900 text-blue-100 px-5 py-2 rounded-md hover:bg-blue-700 transition"
-        >
-          Clear
-        </button>
+            {/* Only this box scrolls; the column titles stay in place */}
+            <div className="max-h-[70vh] overflow-auto">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="text-xs uppercase tracking-wider text-blue-100">
+                    {[
+                      ["#", "hidden md:table-cell w-12 text-center"],
+                      ["Student", ""],
+                      ["Branch", "hidden md:table-cell"],
+                      ["Company", ""],
+                      ["Location", "hidden lg:table-cell"],
+                      ["Year", "hidden md:table-cell text-center"],
+                      ["Package", "text-right"],
+                    ].map(([title, cls]) => (
+                      <th
+                        key={title}
+                        scope="col"
+                        className={`sticky top-0 z-10 bg-blue-900 px-3 sm:px-4 py-3 font-semibold ${cls}`}
+                      >
+                        {title}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {loading ? (
+                    Array.from({ length: 8 }).map((_, i) => (
+                      <tr key={i} className={i % 2 ? "bg-blue-50/70" : "bg-white"}>
+                        <td colSpan={7} className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="h-11 w-11 shrink-0 animate-pulse rounded-full bg-blue-200" />
+                            <div className="h-3 w-1/2 animate-pulse rounded bg-blue-200" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
+                        No students match your filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((s, i) => {
+                      const code = branchCode(s.branch);
+                      return (
+                        <tr
+                          key={s._id}
+                          className={`border-t border-blue-100 transition-colors hover:bg-blue-100 ${
+                            i % 2 ? "bg-blue-50/70" : "bg-white"
+                          }`}
+                        >
+                          <td className="hidden md:table-cell px-3 py-3 text-center text-gray-400 tabular-nums">
+                            {i + 1}
+                          </td>
+
+                          {/* Student: photo, name, reg no (and branch on phones) */}
+                          <td className="px-3 sm:px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => setSelected(s)}
+                                aria-label={`Enlarge photo of ${toTitleCase(s.name)}`}
+                                className="shrink-0 rounded-full ring-2 ring-blue-400 ring-offset-2 ring-offset-white transition hover:scale-105 focus-visible:outline-none focus-visible:ring-blue-600"
+                              >
+                                <img
+                                  src={cldImage(s.image?.url, 120) || "/logo.jpg"}
+                                  alt=""
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover bg-blue-100"
+                                />
+                              </button>
+                              <div className="min-w-0">
+                                <div className="font-semibold text-gray-900 break-words">
+                                  {toTitleCase(s.name)}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {s.registerNumber?.trim().toUpperCase()}
+                                  <span className="md:hidden">
+                                    {" · "}
+                                    {code}
+                                    {" · "}
+                                    {s.yearOfPassing}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="hidden md:table-cell px-4 py-3">
+                            <span
+                              title={PROGRAM_NAMES[code] || s.branch}
+                              className="inline-block rounded-full border border-blue-300 bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-700"
+                            >
+                              {code}
+                            </span>
+                          </td>
+
+                          {/* Company (designation, and location on phones) */}
+                          <td className="px-3 sm:px-4 py-3">
+                            <div className="font-medium text-gray-900 break-words">
+                              {toTitleCase(s.companyName)}
+                            </div>
+                            {s.designation && (
+                              <div className="text-xs text-gray-500">
+                                {toTitleCase(s.designation)}
+                              </div>
+                            )}
+                            <div className="lg:hidden text-xs text-gray-500">
+                              {toTitleCase(s.location)}
+                            </div>
+                          </td>
+
+                          <td className="hidden lg:table-cell px-4 py-3 text-gray-700">
+                            {toTitleCase(s.location)}
+                          </td>
+
+                          <td className="hidden md:table-cell px-4 py-3 text-center text-gray-700 tabular-nums">
+                            {s.yearOfPassing}
+                          </td>
+
+                          <td className="px-3 sm:px-4 py-3 text-right">
+                            <span className="inline-block whitespace-nowrap rounded-full bg-blue-400/20 px-2.5 py-1 text-xs sm:text-sm font-bold text-blue-800 tabular-nums">
+                              {formatLPA(s.packageOffered)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Results Count */}
-      <p className="text-center text-gray-600 mb-6 text-sm">
-        Showing <strong className="text-blue-700">{filtered.length}</strong>{" "}
-        {filtered.length === 1 ? "student" : "students"}
-      </p>
-
-      {/* Students Grid */}
-      {loadError ? (
-        <p className="text-center text-gray-600 py-10">
-          Could not load placed students right now. Please{" "}
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="font-semibold text-blue-700 underline"
-          >
-            try again
-          </button>
-          .
-        </p>
-      ) : filtered.length === 0 ? (
-        <p className="text-center text-gray-500 py-10">
-          No students match your filters.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.slice(0, visibleCount).map((s) => {
-            return (
-              <div
-                key={s._id}
-                className="relative overflow-hidden rounded-[28px] shadow-2xl border-4 border-[#c9a227] shadow-[0_0_20px_rgba(201,162,39,0.35)] w-full max-w-[360px] mx-auto hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(0,0,0,0.25)] transition-all duration-300"
-              >
-                {/* College Background Image */}
-                <img
-                  src="/kpt-bg.jpg"
-                  alt=""
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover opacity-75"
-                />
-
-                {/* Light Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/65 via-white/65 to-blue-50/75 backdrop-blur-[1px]" />
-                {/* Main Content */}
-                <div className="relative z-10 flex flex-col items-center text-center p-4">
-                  {/* Heading */}
-                  <div className="mb-3">
-                    <h3 className="text-blue-700 text-base font-semibold italic">
-                      🎉 Hearty Congratulations! 🎉
-                    </h3>
-
-                    <div className="mt-2 bg-[#0c0c0c] text-white px-5 py-2 rounded-full text-sm font-bold shadow">
-                      Proud Moment for KPT Family!
-                    </div>
-                  </div>
-
-                  {/* Student Image */}
-                  <div className="relative mt-2">
-                    <div className="w-35 h-35 rounded-full border-[6px] border-[#c9a227] p-1 bg-white shadow-xl">
-                      <img
-                        src={cldImage(s.image?.url, 320) || "/logo.jpg"}
-                        alt={s.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover rounded-full"
-                      />
-                    </div>
-
-                    {/* Year Badge */}
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#0c0c0c] text-white text-xs px-2 py-1 rounded-full shadow-lg font-bold">
-                      {s.yearOfPassing}
-                    </div>
-                  </div>
-
-                  {/* Name */}
-                  <h2 className="mt-3 text-2xl sm:text-3xl font-extrabold text-[#0c0c0c] break-words max-w-full tracking-wide uppercase leading-tight">
-                    {toTitleCase(s.name)}
-                  </h2>
-
-                  {/* Register Number */}
-                  <p className="text-sm text-gray-600 mt-2">
-                    Reg No:
-                    <span className="font-bold text-gray-800 ml-1">
-                      {s.registerNumber?.toUpperCase()}
-                    </span>
-                  </p>
-
-                  {/* Branch */}
-                  <p className="mt-1 text-sm text-gray-600">
-                    <span className="font-semibold">Branch:</span>{" "}
-                    <span className="text-blue-600 font-bold">
-                      {branchNames[s.branch?.toUpperCase()] || s.branch}
-                    </span>
-                  </p>
-
-                  {/* Company */}
-                  <div className="mt-3 bg-white/40 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-1 shadow-md w-full">
-                    {" "}
-                    <div className="text-base font-bold text-[#6b5416]">
-                      {toTitleCase(s.companyName)}
-                    </div>
-                    {s.designation && (
-                      <div className="text-xs text-gray-600 italic mt-0.5 font-semibold">
-                        {toTitleCase(s.designation)}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Location */}
-                  <div className="mt-2 text-sm text-gray-700 flex items-center gap-1">
-                    📍 {toTitleCase(s.location)}
-                  </div>
-
-                  {/* Package */}
-                  <div className="mt-4 bg-gradient-to-r from-blue-300 to-blue-400 text-blue-900 px-6 py-2 rounded-full text-lg font-bold shadow-lg border border-blue-500/40">
-                    💰 Package: {s.packageOffered} LPA
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {visibleCount < filtered.length && (
-        <div className="mt-10 text-center">
-          <button
-            type="button"
-            onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
-            className="rounded-full bg-blue-700 px-6 py-2.5 font-semibold text-white shadow hover:bg-blue-800"
-          >
-            Show more students ({filtered.length - visibleCount} more)
-          </button>
-        </div>
+      {selected && (
+        <PhotoViewer student={selected} onClose={() => setSelected(null)} />
       )}
     </main>
+  );
+}
+
+/* ---------------------------------------
+   Enlarged photo
+--------------------------------------- */
+function PhotoViewer({ student, onClose }) {
+  const [sharpLoaded, setSharpLoaded] = useState(false);
+  const url = student.image?.url;
+
+  // Close with Esc, and stop the page behind from scrolling
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previous;
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={toTitleCase(student.name)}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/75 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3 top-3 z-10 rounded-full bg-blue-900/80 p-2 text-blue-100 hover:bg-blue-900"
+        >
+          <X className="h-5 w-5" />
+        </button>
+
+        {/* The small photo (already downloaded) shows at once; the sharp one fades in */}
+        <div className="relative aspect-[4/5] w-full bg-blue-100">
+          <img
+            src={cldImage(url, 120) || "/logo.jpg"}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover blur-[2px]"
+          />
+          {url && (
+            <img
+              src={cldImage(url, 800)}
+              alt={toTitleCase(student.name)}
+              onLoad={() => setSharpLoaded(true)}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+                sharpLoaded ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          )}
+        </div>
+
+        <div className="border-t-4 border-blue-400 p-4 text-center">
+          <h2 className="text-xl font-bold text-blue-900">
+            {toTitleCase(student.name)}
+          </h2>
+          <p className="text-sm text-gray-600">
+            {PROGRAM_NAMES[branchCode(student.branch)] || student.branch} ·{" "}
+            {student.yearOfPassing}
+          </p>
+          <p className="mt-2 font-semibold text-blue-700">
+            {toTitleCase(student.companyName)}
+          </p>
+          <span className="mt-2 inline-block rounded-full bg-blue-400/20 px-3 py-1 text-sm font-bold text-blue-800">
+            {formatLPA(student.packageOffered)}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
